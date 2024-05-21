@@ -1,6 +1,0 @@
-let messages=document.createElement("p");
-messages.setAttribute("class","chats");
-let chat= document.createTextNode(userName.value);
-userName.value='';
-messages.appendChild(chat);
-document.getElementById("userNameHead").appendChild(messages);
