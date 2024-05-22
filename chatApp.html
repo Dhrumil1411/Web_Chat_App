@@ -57,7 +57,7 @@
             font-size: 13px;
             font-family: arial;
             color: black;
-            font-weight: 1000;
+            font-weight: 900;
             margin-bottom: 2px;
             text-align: right;
           }
@@ -104,7 +104,7 @@
       <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
-        import { getDatabase, set, get, ref, remove, child, update } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
+        import { getDatabase, set, get, ref , remove, child, update, push, onValue, query, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
         // TODO: Add SDKs for Firebase products that you want to use
         // https://firebase.google.com/docs/web/setup#available-libraries
       
@@ -122,71 +122,66 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database=getDatabase();
+        const onValueRef = query(ref(database, 'message/'))
 
         //script codes
-
-        function () {
-                
-            }
-        let user;
         document.getElementById("UserNameBtn").addEventListener('click', function(){
-
-          let userName=document.getElementById("inputForUserName");
-          user=userName.value;
-          if(userName.value===null){
-            alert("Please Enter Username.")
-          }
-          else{
-            set(ref(database, "users/" + userName.value),{
-             userName: userName.value
-            })
-          }
-
-          console.log("Username Entered Successfully")
-
+          let userName=JSON.parse(localStorage.getItem("userName"));
+          
+            if(userName===null){
+              userName=[];
+            }
+            let obj={
+              username:document.getElementById("inputForUserName").value,
+              status:false,
+            }
+            if(userName.username!=''){
           document.getElementById("inputForUserName").style.display="none";
           document.getElementById("UserNameBtn").style.display="none";
-
           document.getElementById("inputForMessage").focus();
-        })
-        
+        }
+            if(obj.username===''){
+              alert("please Enter Username.");
+            }
+            else{
+              userName.push(obj);
+              set(ref(database, "users/" + document.getElementById("inputForUserName").value),{
+                userName: document.getElementById("inputForUserName").value,
+              })
+              localStorage.setItem("userName",JSON.stringify(userName));
+              console.log("Username Entered Successfully");
+            }
+          })
+
+        let userName=JSON.parse(localStorage.getItem("userName"));
+        if(userName[0].username!=''){
+          document.getElementById("inputForUserName").style.display="none";
+          document.getElementById("UserNameBtn").style.display="none";
+          document.getElementById("inputForMessage").focus();
+        }
         document.getElementById("messageBtn").addEventListener('click', function(){
-
-          let messages=JSON.parse(localStorage.getItem("chat"));
-                if(messages===null){
-                  messages=[];
-                }
-                let obj={
-                    user:user,
-                    chat:document.getElementById("inputForMessage").value,
-                    id:Math.floor(Math.random()* 9999),
-                    status:false,
-                }
-                if(obj.title===''){
-                    alert("please enter the empty text area");
-                }
-                else{
-                    item.push(obj);
-                    localStorage.setItem("items",JSON.stringify(item));
-                    window.location.reload();
-                }
-
           let message=document.getElementById("inputForMessage");
-          set(ref(database,"message/" + user),{
-            userName:user,
-            message:message.value
+          let userName=JSON.parse(localStorage.getItem("userName"));
+          push(ref(database, "message/"),{
+            message:message.value,
+            username:userName[0].username,
           })
           console.log("message Entered Successfully");
-
-          let chat=document.createElement("li");
-          let text=document.createTextNode(user + ":" + message.value);
-          chat.setAttribute("class","chats");
-          chat.appendChild(text);
-          document.getElementById("chatArea").appendChild(chat);
-
-          document.getElementById("inputForMessage").focus();
-          document.getElementById("inputForMessage").value='';
+          
         })
+        onChildAdded(onValueRef,(snapshot) => {
+            console.log(snapshot.val())
+            let data=snapshot.val();
+            let chat=document.createElement("li");
+            chat.setAttribute("class", "chats");
+            let text=document.createTextNode(data.username + ":" + data.message );
+            chat.appendChild(text);
+            document.getElementById("chatArea").appendChild(chat);
+            document.getElementById("inputForMessage").focus();
+            document.getElementById("inputForMessage").value='';
+          }, (errorObject) => {
+            console.log('The read failed: ' + errorObject.name);
+          }); 
       </script>
     </body>
 </html>
