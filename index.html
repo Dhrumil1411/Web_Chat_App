@@ -77,10 +77,49 @@
             border-radius: 10px;
             padding: 5px;
           }
+
+          .inputForGroupName{
+            height: 5%;
+            width: 87%;
+            border-radius: 10px;
+            border: 1px solid black;
+            padding:5px ;
+          }
+
+          .groupBtn{
+            height: 5%;
+            width: 10%;
+            margin: 5px;
+            border: 1px solid black;
+            padding: 5px;
+            border-radius: 10px;
+            color: black;
+            font-family: Arial;
+          }
+
+          .groupBtn:hover{
+            cursor: pointer;
+          }
+
+          .groups{
+            height: 5%;
+            width: 10%;
+            margin: 5px;
+            border: 1px solid black;
+            padding: 5px;
+            border-radius: 10px;
+            color: black;
+            font-family: Arial;
+          }
+
+          .groups:hover{
+            cursor: pointer;
+          }
         </style>
     </head>
 
     <body>
+
       <div id="userNameHead">
         <form id="userNameForm">
           <input type="text" id="inputForUserName" class="inputForUserName" placeholder="Enter Your Username...." autofocus>
@@ -88,18 +127,25 @@
         </form>
       </div>
 
+      <div id="groupAdder">
+        <form id="groupForm">
+          <input id="inputForGroupName" class="inputForGroupName" placeholder="Enter Group Name......." type="text">
+          <button type="button" class="groupBtn" id="groupBtn">Add Group</button>
+        </form>
+      </div>
+
+
       <div class="allChats">
+        <div id="groupNames"></div>
         <ul id="chatArea" style="list-style: none;"></ul>
       </div>
 
       <div>
         <form id="messageForm">
-          <input type="text" class="inputForMessage" id="inputForMessage" placeholder="Message" name="inputForMessage">
+          <input type="text" class="inputForMessage" id="inputForMessage" placeholder="Message">
           <button type="button" class="messageBtn" id="messageBtn">Send</button>
         </form>
       </div>
-
-
 
       <script type="module">
         // Import the functions you need from the SDKs you need
@@ -118,13 +164,14 @@
           messagingSenderId: "356463502797",
           appId: "1:356463502797:web:642f8a38037347dafdd084"
         };
-      
+        
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database=getDatabase();
-        const onValueRef = query(ref(database, 'message/'))
+        const onValueRef = query(ref(database, 'groups/'))
 
         //script codes
+        let username;
         document.getElementById("UserNameBtn").addEventListener('click', function(){
           let userName=JSON.parse(localStorage.getItem("userName"));
           
@@ -133,55 +180,90 @@
             }
             let obj={
               username:document.getElementById("inputForUserName").value,
-              status:false,
             }
+            username=document.getElementById("inputForUserName").value;
             if(userName.username!=''){
-          document.getElementById("inputForUserName").style.display="none";
-          document.getElementById("UserNameBtn").style.display="none";
-          document.getElementById("inputForMessage").focus();
+          document.getElementById("userNameHead").style.display="none";
         }
-            if(obj.username===''){
-              alert("please Enter Username.");
-            }
-            else{
-              userName.push(obj);
-              set(ref(database, "users/" + document.getElementById("inputForUserName").value),{
-                userName: document.getElementById("inputForUserName").value,
-              })
-              localStorage.setItem("userName",JSON.stringify(userName));
-              console.log("Username Entered Successfully");
-            }
-          })
+          if(obj.username===''){
+           alert("please Enter Username.");
+          }
+          else{
+            userName.push(obj);
+            localStorage.setItem("userName",JSON.stringify(userName));
+            console.log("Username Entered Successfully");
+            window.location.reload();
+
+          }
+        })
 
         let userName=JSON.parse(localStorage.getItem("userName"));
-        if(userName[0].username!=''){
-          document.getElementById("inputForUserName").style.display="none";
-          document.getElementById("UserNameBtn").style.display="none";
-          document.getElementById("inputForMessage").focus();
+        if(userName && userName[0].username!=''){
+          document.getElementById("userNameHead").style.display="none";
+          document.getElementById("inputForGroupName").focus();
         }
-        document.getElementById("messageBtn").addEventListener('click', function(){
-          let message=document.getElementById("inputForMessage");
-          let userName=JSON.parse(localStorage.getItem("userName"));
-          push(ref(database, "message/"),{
-            message:message.value,
-            username:userName[0].username,
+        
+        document.getElementById("groupBtn").addEventListener('click', function () {
+          let id=Math.floor(Math.random()* 9999);
+          set(ref(database, "groups/" + id+ '/'),{ 
+            groupName:document.getElementById("inputForGroupName").value,
+            id:id 
           })
-          console.log("message Entered Successfully");
-          
+          console.log("Group Entered Successfully");
+          document.getElementById("inputForGroupName").value='';
         })
-        onChildAdded(onValueRef,(snapshot) => {
+
+          onChildAdded(onValueRef,(snapshot) => {
             console.log(snapshot.val())
             let data=snapshot.val();
-            let chat=document.createElement("li");
-            chat.setAttribute("class", "chats");
-            let text=document.createTextNode(data.username + ":" + data.message );
-            chat.appendChild(text);
-            document.getElementById("chatArea").appendChild(chat);
-            document.getElementById("inputForMessage").focus();
-            document.getElementById("inputForMessage").value='';
+            let group=data.groupName;
+            let groupName=document.createElement("button");
+            groupName.setAttribute("type", "button");
+            groupName.setAttribute("id",data.id);
+            groupName.addEventListener("click", ()=> {
+              messages(data.id);
+            })
+            groupName.setAttribute("class","groups");
+            groupName.innerHTML=group;
+            document.getElementById("groupNames").appendChild(groupName);
+            if(data.userName && data.message !==''){
+              let chat=document.createElement("li");
+              chat.setAttribute("class", "chats");
+              let text=document.createTextNode(data.id.chats + ":" + data.id.chats.message );
+              chat.appendChild(text);
+              document.getElementById("chatArea").appendChild(chat);
+              }
           }, (errorObject) => {
             console.log('The read failed: ' + errorObject.name);
           }); 
+        
+        let selectedgroup;
+        function messages(id){
+          document.getElementById("chatArea").innerHTML="";
+          selectedgroup=id;
+          let onvalref=query(ref(database, 'groups/'+ id +'/chats/' ));
+          onChildAdded(onvalref,(snapshot)=>{
+            console.log(snapshot.val());
+            let data=snapshot.val();
+            let chat=document.createElement("li");
+            chat.setAttribute("class", "chats");
+            let text=document.createTextNode(data.username+":"+data.message);
+            chat.appendChild(text);
+            document.getElementById("chatArea").appendChild(chat);
+            document.getElementById("inputForMessage").focus();
+          })
+        }
+
+        document.getElementById("messageBtn").addEventListener("click", function(id){
+            let message=document.getElementById("inputForMessage");
+            let userName=JSON.parse(localStorage.getItem("userName"));
+            push(ref(database, "groups/"+ selectedgroup +"/chats/"),{
+              message:message.value,
+              username:userName[0].username
+            })
+            console.log("message Entered Successfully");
+            document.getElementById("inputForMessage").value='';
+            })
       </script>
     </body>
 </html>
