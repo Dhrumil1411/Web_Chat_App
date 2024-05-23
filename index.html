@@ -12,14 +12,13 @@
             border-radius: 10px;
             border: 1px solid black;
             padding:10px;
-            margin-top: 40px;
-            margin-bottom: 20px;
-            
+            margin-top: 30px;
+            margin-bottom: 10px;         
           }
 
-          .userNameBtn{
+          .signIn{
             height: 5%;
-            width: 10%;
+            width: 15%;
             margin: 5px;
             border: 1px solid black;
             padding: 5px;
@@ -28,7 +27,22 @@
             font-family: Arial;
           }
 
-          .userNameBtn:hover{
+          .signIn:hover{
+            cursor: pointer;
+          }
+
+          .signUp{
+            height: 5%;
+            width: 15%;
+            margin: 5px;
+            border: 1px solid black;
+            padding: 5px;
+            border-radius: 10px;
+            color: black;
+            font-family: Arial;
+          }
+
+          .signUp:hover{
             cursor: pointer;
           }
 
@@ -92,7 +106,7 @@
             padding-left: 10px;
             overflow-y: auto;
             overflow-x: hidden;
-            height: 400px;
+            height:70vh;
           }
 
           .userNameHead{
@@ -151,7 +165,7 @@
             font-family: arial;
             font-weight: bold;
             color: black;
-            margin-left: 400px;
+            margin-left: 32%;
           }
 
           .groupAdderBtn{
@@ -180,6 +194,14 @@
             margin: 5px;
           }
 
+          .password{
+            height: 5%;
+            width: 30%;
+            border-radius: 10px;
+            border: 1px solid black;
+            padding:10px;
+            margin-bottom: 20px;
+          }
         </style>
     </head>
 
@@ -189,7 +211,9 @@
         <div class="formArea">Enter User Name
           <form id="userNameForm">
             <input type="text" id="inputForUserName" class="inputForUserName" placeholder="Enter Your Username...." autofocus><br>
-            <button type="button" id="UserNameBtn" class="userNameBtn">Enter</button>
+            <input type="password" id="password" class="password" placeholder="Enter password...." pattern=".{8,}" required><br>
+            <button type="button" id="signIn" class="signIn">SIGN IN</button>
+            <button type="button" id="signUp" class="signUp">SIGN UP</button>
           </form>
         </div>
       </div>
@@ -251,14 +275,6 @@
           }
         })
 
-        let click1=document.getElementById("inputForUserName");
-        click1.addEventListener("keypress",function(event){
-          if(event.key==="Enter"){
-            event.preventDefault();
-            document.getElementById("UserNameBtn").click();
-          }
-        })
-
         let click2=document.getElementById("inputForGroupName");
         click2.addEventListener("keypress",function(event){
           if(event.key==="Enter"){
@@ -274,66 +290,61 @@
           document.getElementById("groupAdder").style.display="block"
           document.getElementById("inputForGroupName").focus();
         })
-        document.getElementById("UserNameBtn").addEventListener('click', function(){
-          let userName=JSON.parse(localStorage.getItem("userName"));
-          
-            if(userName===null){
-              userName=[];
-            }
-            let obj={
-              username:document.getElementById("inputForUserName").value,
-            }
-            if(obj.username==='' || obj.username===null){
-              window.location.reload();
+
+        document.getElementById("signIn").addEventListener('click', function(){
+          const dbref=ref(database);
+          get(child(dbref, "users/"+ document.getElementById("inputForUserName").value))
+          .then((snapshot)=>{
+            if(snapshot.exists()){              
+            document.getElementById("userNameHead").style.display="none";
+            document.getElementById("groupsAndChats").style.display="block";
             }
             else{
-              document.getElementById("userNameHead").style.display="none";
+              alert("User Doesn't Exist.");
             }
-            if(obj.username===null || obj.username===''){
-            alert("please Enter Username.");
-            }
-            else{
-              userName.push(obj);
-              localStorage.setItem("userName",JSON.stringify(userName));
-              console.log("Username Entered Successfully");
-             set(ref(database, "Users/" + obj.username),{
-              userName:obj.username
-             })
-             window.location.reload();
-            }
+          })
         })
 
-        let userName=JSON.parse(localStorage.getItem("userName"));
-        if(userName[0].username===null || userName[0].username===''){
-          document.getElementById("groupsAndChats").style.display="none"
-          alert("Please Enter Username.");
-        }
-        else{
-          document.getElementById("groupsAndChats").style.display="block";
-          document.getElementById("userNameHead").style.display="none";
-        }
-        
-        document.getElementById("groupBtn").addEventListener('click', function () {
-          if(document.getElementById("inputForGroupName").value===''){
-            alert("Please Enter Group Name.");
-          }
-          else{
-            let id=Math.floor(Math.random()* 9999);
-            set(ref(database, "groups/" + id+ '/'),{ 
-              groupName:document.getElementById("inputForGroupName").value,
-              id:id 
-            })
-            console.log("Group Entered Successfully");
-            document.getElementById("inputForGroupName").value='';
-          } 
-          document.getElementById("groupAdder").style.display="none";
-          document.getElementById("groupAddBtn").style.display="block";
+        document.getElementById("signUp").addEventListener('click', function(){
+          const dbref=ref(database);
+          get(child(dbref, "users/"+ document.getElementById("inputForUserName").value))
+          .then((snapshot)=>{
+            if(snapshot.exists()){              
+            alert("User Already Exists.");
+            }
+            else{
+              localStorage.setItem("userName",JSON.stringify(document.getElementById("inputForUserName").value));
+              console.log("Username Entered Successfully");
+              document.getElementById("userNameHead").style.display="none";
+              set(ref(database,"users/" + document.getElementById("inputForUserName").value),{
+                userName:document.getElementById("inputForUserName").value,
+                password:document.getElementById("password").value
+              })
+              document.getElementById("userNameHead").style.display="none";
+              document.getElementById("groupsAndChats").style.display="block";
+            }
+          })
         })
-        let username=JSON.parse(localStorage.getItem("userName"));
-        if(username[0].username===0){
-          alert("Please Enter Username First.");
-        }
-        else{
+
+        document.getElementById("groupsAndChats").style.display="none"
+   
+          document.getElementById("groupBtn").addEventListener('click', function () {
+            if(document.getElementById("inputForGroupName").value===''){
+              alert("Please Enter Group Name.");
+            }
+            else{
+              let id=Math.floor(Math.random()* 9999);
+              set(ref(database, "groups/" + id+ '/'),{ 
+                groupName:document.getElementById("inputForGroupName").value,
+                id:id 
+              })
+              console.log("Group Entered Successfully");
+              document.getElementById("inputForGroupName").value='';
+            } 
+            document.getElementById("groupAdder").style.display="none";
+            document.getElementById("groupAddBtn").style.display="block";
+          })
+        
           onChildAdded(onValueRef,(snapshot) => {
             console.log(snapshot.val())
             let data=snapshot.val();
@@ -350,7 +361,6 @@
           }, (errorObject) => {
             console.log('The read failed: ' + errorObject.name);
           }); 
-        }
 
         let selectedgroup;
         function messages(id){
@@ -363,7 +373,7 @@
             let chat=document.createElement("li");
             let message=document.createElement("div");
             let userName=JSON.parse(localStorage.getItem("userName"));
-            if(userName[0].username===data.username){
+            if(userName===data.username){
               message.classList.add("chatsGet");
               chat.setAttribute("style","text-align:right;")
             }
@@ -381,18 +391,18 @@
         }
 
         document.getElementById("messageBtn").addEventListener("click", function(id){
-            let message=document.getElementById("inputForMessage");
+            let message=document.getElementById("inputForMessage").value;
             let userName=JSON.parse(localStorage.getItem("userName"));
-            if(message.value!==''){
+            if(message!==''){
               push(ref(database, "groups/"+ selectedgroup +"/chats/"),{
-                message:message.value,
-                username:userName[0].username
+                message:message,
+                username:userName
               })
             }
             console.log("message Entered Successfully");
             document.getElementById("inputForMessage").value='';
             document.getElementById("inputForMessage").focus();
-            })
+            });
       </script>
     </body>
 </html>
