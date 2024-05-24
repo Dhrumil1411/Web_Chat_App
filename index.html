@@ -1,519 +1,652 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>Web Chat App</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" type="image/png" href="massage.png">
-        <style>
-          .inputForUserName{
-            height: 5%;
-            width: 30%;
-            border-radius: 10px;
-            border: 1px solid black;
-            padding:10px;
-            margin-top: 30px;
-            margin-bottom: 10px;         
-          }
+  <head>
+    <title>Web Chat App</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="massage.png" />
+    <style>
+      .inputForUserName {
+        height: 5%;
+        width: auto;
+        border-radius: 10px;
+        border: 1px solid black;
+        padding: 10px;
+        margin-top: 30px;
+        margin-bottom: 10px;
+      }
 
-          .signIn{
-            height: 5%;
-            width: 15%;
-            margin: 5px;
-            border: 1px solid black;
-            padding: 5px;
-            border-radius: 10px;
-            color: black;
-            font-family: Arial;
-          }
+      .signIn {
+        height: 5%;
+        width: auto;
+        min-width: 15%;
+        margin: 5px;
+        border: 1px solid black;
+        padding: 5px;
+        border-radius: 10px;
+        color: black;
+        font-family: Arial;
+        margin-bottom: 10px;
+      }
 
-          .signIn:hover{
-            cursor: pointer;
-          }
+      .signIn:hover {
+        cursor: pointer;
+      }
 
-          .signUp{
-            height: 5%;
-            width: 15%;
-            margin: 5px;
-            border: 1px solid black;
-            padding: 5px;
-            border-radius: 10px;
-            color: black;
-            font-family: Arial;
-          }
+      .signUp {
+        height: 5%;
+        width: auto;
+        min-width: 15%;
+        margin: 5px;
+        border: 1px solid black;
+        padding: 5px;
+        border-radius: 10px;
+        color: black;
+        font-family: Arial;
+        margin-bottom: 10px;
+      }
 
-          .signUp:hover{
-            cursor: pointer;
-          }
+      .signUp:hover {
+        cursor: pointer;
+      }
 
-          .inputForMessage{
-            height: 5%;
-            width: 87%;
-            border-radius: 10px;
-            border: 2px solid black;
-            padding:5px ;
-          }
+      .inputForMessage {
+        height: 5%;
+        width: auto;
+        min-width: 80%;
+        border-radius: 10px;
+        border: 2px solid black;
+        padding: 5px;
+      }
 
-          .messageBtn{
-            height: 5%;
-            width: 10%;
-            margin: 5px;
-            border: 2px solid black;
-            padding: 5px;
-            border-radius: 10px;
-            color: black;
-            font-family: Arial;
-          }
+      .messageBtn {
+        height: 5%;
+        width: auto;
+        min-width: 10%;
+        margin: 5px;
+        border: 2px solid black;
+        padding: 5px;
+        border-radius: 10px;
+        color: black;
+        font-family: Arial;
+      }
 
-          .messageBtn:hover{
-            cursor: pointer;
-          }
+      .messageBtn:hover {
+        cursor: pointer;
+      }
 
-          .chatsGet{ 
-            font-size: 17px;
-            color: black;
-            margin-bottom: 4px;
-            border-radius: 7px;
-            padding-top: 3px;
-            padding-bottom: 3px;
-            letter-spacing: 1px;
-            border: 1px solid black;
-            display: inline-block;
-          }
+      .chatsGet {
+        font-size: 17px;
+        color: black;
+        margin-bottom: 4px;
+        border-radius: 7px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        letter-spacing: 1px;
+        border: 1px solid black;
+        display:inline-block;
+        word-wrap: break-word;
+        max-width: 60%;
+      }
 
-          .chatsSend{ 
-            display: inline-block;
-            font-size: 17px;
-            color: black;
-            margin-bottom: 4px;
-            border-radius: 7px;
-            padding-top: 3px;
-            padding-bottom: 3px;
-            letter-spacing: 1px;
-            border: 1px solid black;
-          }
+      .chatsSend {
+        display: inline-block;
+        font-size: 17px;
+        color: black;
+        margin-bottom: 4px;
+        border-radius: 7px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        letter-spacing: 1px;
+        border: 1px solid black;
+        word-wrap: break-word;
+        max-width: 60%;
+      }
 
-          .allChats{
-            width: 97%;
-            height: auto;
-            border: 1px solid black;
-            border-radius: 10px;
-            padding-right: 10px;
-            padding-left: 10px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            height:70vh;
-          }
+      .allChats {
+        width: auto;
+        height: auto;
+        border: 1px solid black;
+        border-radius: 10px;
+        padding-right: 10px;
+        padding-left: 10px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        height: 80vh;
+      }
 
-          .userNameHead{
-            height: 100%;
-            width: 100%;
-            padding-top: 180px;
-            padding-bottom: 175px;
-          }
+      .userNameHead {
+        height: 100%;
+        width: 100%;
+        padding-top: 180px;
+        padding-bottom: 175px;
+      }
 
-          .inputForGroupName{
-            height: 5%;
-            width: 75%;
-            border-radius: 10px;
-            border: 1px solid ;
-            padding:5px ;
-          }
+      .inputForGroupName {
+        height: 5%;
+        width: auto;
+        border-radius: 10px;
+        border: 1px solid;
+        padding: 5px;
+      }
 
-          .groupBtn{
-            height: 5%;
-            width: 10%;
-            margin: 5px;
-            border: 2px solid black;
-            padding: 5px;
-            border-radius: 10px;
-            color: black;
-            font-family: Arial;
-          }
+      .groupBtn {
+        height: 5%;
+        width: auto;
+        min-width: 15%;
+        margin: 5px;
+        border: 2px solid black;
+        padding: 5px;
+        border-radius: 10px;
+        color: black;
+        font-family: Arial;
+      }
 
-          .groupBtn:hover{
-            cursor: pointer;
-          }
+      .groupBtn:hover {
+        cursor: pointer;
+      }
 
-          .groups{
-            height: 5%;
-            width:auto;
-            margin: 5px;
-            border: 2px solid black;
-            padding: 5px 10px 5px 10px;
-            border-radius: 10px;
-            color: black;
-            font-family: Arial;
-          }
+      .groups {
+        height: 5%;
+        width: auto;
+        min-width: 15%;
+        margin: 10px;
+        border: 2px solid black;
+        padding: 5px 10px 5px 10px;
+        border-radius: 10px;
+        color: black;
+        font-family: Arial;
+      }
 
-          .groups:hover{
-            cursor: pointer;
-          }
+      .groups:hover {
+        cursor: pointer;
+      }
 
-          .formArea{
-            padding-top:30px ;
-            border-radius: 20px;
-            width: 35%;
-            border: 5px solid black;
-            text-align: center;
-            font-size: 20px;
-            font-family: arial;
-            font-weight: bold;
-            color: black;
-            margin-left: auto;
-            margin-right: auto;
-          }
+      .formArea {
+        padding-top: 30px;
+        border-radius: 20px;
+        width: auto;
+        min-width: 40%;
+        border: 5px solid black;
+        text-align: center;
+        font-size: 20px;
+        font-family: arial;
+        font-weight: bold;
+        color: black;
+        margin-left: 20%;
+        margin-right: 20%;
+      }
 
-          .groupAdderBtn{
-            height: 5%;
-            width: 15%;
-            margin: 5px;
-            border: 2px solid black;
-            padding: 5px;
-            border-radius: 10px;
-            color: black;
-            font-family: Arial;
-            
-          }
+      .groupAdderBtn {
+        height: 5%;
+        width: auto;
+        margin: 5px;
+        border: 2px solid black;
+        padding: 5px;
+        border-radius: 10px;
+        color: black;
+        font-family: Arial;
+      }
 
-          .groupAdderBtn:hover{
-            cursor: pointer;
-          }
+      .groupAdderBtn:hover {
+        cursor: pointer;
+      }
 
-          .groupCencel{
-            height: 5%;
-            width: 10%;
-            margin: 5px;
-            border: 2px solid black;
-            padding: 5px;
-            border-radius: 10px;
-            color: black;
-            font-family: Arial;
-            
-          }
+      .groupCencel {
+        height: 5%;
+        width: auto;
+        min-width: 15%;
+        margin: 5px;
+        border: 2px solid black;
+        padding: 5px;
+        border-radius: 10px;
+        color: black;
+        font-family: Arial;
+      }
 
-          .groupCencel:hover{
-            cursor: pointer;
-          }
+      .groupCencel:hover {
+        cursor: pointer;
+      }
 
-          .groupsAndChats{
-            width: auto;
-            height: auto;
-          }
+      .groupsAndChats {
+        width: auto;
+        height: auto;
+      }
 
-          body{
-            margin: 5px;
-          }
+      body {
+        margin: 5px;
+      }
 
-          .password{
-            height: 5%;
-            width: 30%;
-            border-radius: 10px;
-            border: 1px solid black;
-            padding:10px;
-            margin-bottom: 20px;
-          }
+      .password {
+        height: 5%;
+        width: auto;
+        border-radius: 10px;
+        border: 1px solid black;
+        padding: 10px;
+        margin-bottom: 20px;
+      }
 
-          .changeUser{
-            height: 5%;
-            width: 15%;
-            margin: 5px;
-            border: 2px solid black;
-            padding: 5px;
-            border-radius: 10px;
-            color: black;
-            font-family: Arial;
-            
-          }
+      .changeUser {
+        height: 5%;
+        width: auto;
+        margin: 5px;
+        border: 2px solid black;
+        padding: 5px;
+        border-radius: 10px;
+        color: black;
+        font-family: Arial;
+      }
 
-          .changeUser:hover{
-            cursor: pointer;
-          }
+      .changeUser:hover {
+        cursor: pointer;
+      }
 
-          .inChatName{
-            font-size: 10px;
-            font-family: Arial;
-            font-weight: bold;
-            line-height: 8px;
-            margin: 5px;
-          }
+      .inChatName {
+        font-size: 12px;
+        font-family: Arial;
+        font-weight: 1000;
+        line-height: 8px;
+        margin: 5px;
+      }
 
-          .text{
-            margin-top: 0px;
-            margin-bottom: 0px;
-            margin-right: 20px;
-            margin-left: 20px;
-          }
-        </style>
-    </head>
+      .text {
+        margin-top: 3px;
+        margin-bottom: 3px;
+        margin-right: 20px;
+        margin-left: 20px;
+        word-wrap: break-word;
+      }
 
-    <body>
-     
-      <div id="userNameHead" class="userNameHead" style="display: none;">
-        <div class="formArea">Login
-          <form id="userNameForm">
-            <input type="text" id="inputForUserName" class="inputForUserName" placeholder="Enter Your Username...." autofocus><br>
-            <input type="password" id="password" class="password" placeholder="Enter password...." pattern=".{8,}" required><br>
-            <button type="button" id="signIn" class="signIn">SIGN IN</button>
-            <button type="button" id="signUp" class="signUp">SIGN UP</button>
+      .chatsAfterGroupSelect{
+        margin: 10px;
+      }
+
+      @media screen and (max-width:992px) {
+        .groups{
+          width: 97%;
+        }
+
+        .groupAdderBtn{
+          width: 97%;
+        }
+
+        .changeUser{
+          width: 97%;
+        }
+
+        .groupHead{
+          text-align: center;
+        }
+
+        .groupfooter{
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="userNameHead" class="userNameHead" style="display: none">
+      <div class="formArea">
+        Login
+        <form id="userNameForm">
+          <input
+            type="text"
+            id="inputForUserName"
+            class="inputForUserName"
+            placeholder="Enter Your Username...."
+            autofocus
+            autocomplete="off"
+          /><br />
+          <input
+            type="password"
+            id="password"
+            class="password"
+            placeholder="Enter password...."
+            pattern=".{8,}"
+            required
+            autocomplete="off"
+          /><br />
+          <button type="button" id="signIn" class="signIn">SIGN IN</button>
+          <button type="button" id="signUp" class="signUp">SIGN UP</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="groupsAndChats" class="groupsAndChats" style="display: none">
+      <div id="groupAddBtn">
+        <button type="button" class="groupAdderBtn" id="groupAdderBtn">
+          Add New Group
+        </button>
+      </div>
+      <div>
+        <button type="button" id="changeUser" class="changeUser">
+          Change Account
+        </button>
+      </div>
+      <div id="groupAdder" class="groupAdder">
+        <form id="groupForm">
+          <input
+            id="inputForGroupName"
+            class="inputForGroupName"
+            placeholder="Enter Group Name......."
+            type="text"
+            autocomplete="off"
+          />
+          <button type="button" class="groupBtn" id="groupBtn">
+            Add Group
+          </button>
+          <button type="button" class="groupCencel" id="groupCencel">
+            Cencel
+          </button>
+        </form>
+      </div>
+      <div id="groupNames" style="display: block">
+        <p style="font-family: arial; font-size: 17px; font-weight: bolder; margin: 5px; margin-top: 10px;" class="groupHead">
+          CHAT GROUPS :
+        </p>
+      </div>
+      <p
+        style="font-family: arial; font-size: 17px; font-weight: bolder"
+        id="selectGroup"
+        class="groupfooter"
+      >
+        Please Select Or Create A Group!
+      </p>
+
+      <div id="chatsAfterGroupSelect" style="display: none" class="chatsAfterGroupSelect">
+        <div class="allChats">
+          <ul
+            id="chatArea"
+            style="list-style: none; font-family: sans-serif; padding-left: 0px"
+          ></ul>
+        </div>
+
+        <div>
+          <form id="messageForm" class="messageForm">
+            <input
+              type="text"
+              class="inputForMessage"
+              id="inputForMessage"
+              placeholder="Message"
+              autocomplete="off"
+            />
+            <button type="button" class="messageBtn" id="messageBtn">
+              Send
+            </button>
           </form>
         </div>
       </div>
+    </div>
 
-      <div id="groupsAndChats" class="groupsAndChats" style="display: none;">
-        <div id="groupAddBtn">
-          <button type="button" class="groupAdderBtn" id="groupAdderBtn">Add New Group</button>
-          <button type="button" id="changeUser" class="changeUser">Change Account</button>
-        </div>
-        <div id="groupAdder" class="groupAdder">
-          <form id="groupForm">
-            <input id="inputForGroupName" class="inputForGroupName" placeholder="Enter Group Name......." type="text">
-            <button type="button" class="groupBtn" id="groupBtn">Add Group</button>
-            <button type="button" class="groupCencel" id="groupCencel">Cencel</button>
-          </form>
-        </div>
-        <div id="groupNames" style="display:block;"><p style="font-family: arial; font-size: 17px; font-weight: bolder;">CHAT GROUPS : </p></div>
-        <p style="font-family: arial; font-size: 17px; font-weight: bolder;" id="selectGroup">Please Select Or Create A Group!</p>
-        
-        <div id="chatsAfterGroupSelect" style="display: none;">
-          <div class="allChats" >
-            <ul id="chatArea" style="list-style: none; font-family:sans-serif; padding-left: 0px;"></ul>
-          </div>
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+      import {
+        getDatabase,
+        set,
+        get,
+        ref,
+        remove,
+        child,
+        update,
+        push,
+        onValue,
+        query,
+        onChildAdded,
+      } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
 
-          <div>
-            <form id="messageForm" class="messageForm">
-              <input type="text" class="inputForMessage" id="inputForMessage" placeholder="Message">
-              <button type="button" class="messageBtn" id="messageBtn">Send</button>
-            </form>
-          </div>
-        </div>
-      </div>
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyB-r_eRpmJCAhjcwZiSKUy2QZlegPUCdNE",
+        authDomain: "chat-application-8e9ce.firebaseapp.com",
+        databaseURL:
+          "https://chat-application-8e9ce-default-rtdb.firebaseio.com",
+        projectId: "chat-application-8e9ce",
+        storageBucket: "chat-application-8e9ce.appspot.com",
+        messagingSenderId: "356463502797",
+        appId: "1:356463502797:web:642f8a38037347dafdd084",
+      };
 
-      <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
-        import { getDatabase, set, get, ref , remove, child, update, push, onValue, query, onChildAdded } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-      
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-          apiKey: "AIzaSyB-r_eRpmJCAhjcwZiSKUy2QZlegPUCdNE",
-          authDomain: "chat-application-8e9ce.firebaseapp.com",
-          databaseURL: "https://chat-application-8e9ce-default-rtdb.firebaseio.com",
-          projectId: "chat-application-8e9ce",
-          storageBucket: "chat-application-8e9ce.appspot.com",
-          messagingSenderId: "356463502797",
-          appId: "1:356463502797:web:642f8a38037347dafdd084"
-        };
-        
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const database=getDatabase();
-        const onValueRef = query(ref(database, 'groups/'));
-        //script codes
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase();
+      const onValueRef = query(ref(database, "groups/"));
+      //script codes
 
-        let click=document.getElementById("inputForMessage");
-        click.addEventListener("keypress",function(event){
-          if(event.key==="Enter"){
-            event.preventDefault();
-            document.getElementById("messageBtn").click();
+      let click = document.getElementById("inputForMessage");
+      click.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          document.getElementById("messageBtn").click();
+        }
+      });
+
+      let click2 = document.getElementById("inputForGroupName");
+      click2.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          document.getElementById("groupBtn").click();
+        }
+      });
+
+      document.getElementById("groupAdder").style.display = "none";
+      document.getElementById("groupAdderBtn").addEventListener("click", () => {
+        document.getElementById("groupAddBtn").style.display = "none";
+        document.getElementById("groupAdder").style.display = "block";
+        document.getElementById("inputForGroupName").focus();
+      });
+
+      document.getElementById("groupCencel").addEventListener("click", () => {
+        document.getElementById("groupAddBtn").style.display = "block";
+        document.getElementById("groupAdder").style.display = "none";
+      });
+
+      const dbref = ref(database);
+      let user = JSON.parse(localStorage.getItem("userName"));
+      let pw = JSON.parse(localStorage.getItem("password"));
+      console.log(user);
+      console.log(pw);
+      if (user !== null && pw !== null) {
+        get(child(dbref, "users/" + user)).then((snapshot) => {
+          let data = snapshot.val();
+          if (snapshot.exists()) {
+            document.getElementById("groupsAndChats").style.display = "block";
           }
-        })
+        });
+      } else {
+        document.getElementById("userNameHead").style.display = "block";
+        document.getElementById("inputForUserName").focus();
+      }
 
-        let click2=document.getElementById("inputForGroupName");
-        click2.addEventListener("keypress",function(event){
-          if(event.key==="Enter"){
-            event.preventDefault();
-            document.getElementById("groupBtn").click();
-          }
-        })
-        
-        document.getElementById("groupAdder").style.display="none";
-        document.getElementById("groupAdderBtn").addEventListener('click' ,()=>{
-          document.getElementById("groupAddBtn").style.display="none";
-          document.getElementById("groupAdder").style.display="block";
-          document.getElementById("inputForGroupName").focus();
-        })
-        
-        document.getElementById("groupCencel").addEventListener('click' , ()=>{
-          document.getElementById("groupAddBtn").style.display="block";
-          document.getElementById("groupAdder").style.display="none";
-        })
-
-        const dbref=ref(database);
-        let user=JSON.parse(localStorage.getItem("userName"));
-        let pw=JSON.parse(localStorage.getItem("password"));
+      document.getElementById("changeUser").addEventListener("click", () => {
+        document.getElementById("groupsAndChats").style.display = "none";
+        document.getElementById("userNameHead").style.display = "block";
+        document.getElementById("inputForUserName").value = "";
+        document.getElementById("password").value = "";
+        console.log(selectedgroup);
+        selectedgroup = null;
+        user = null;
         console.log(user);
+        pw = null;
         console.log(pw);
-        if(user!==null && pw!==null){
-        get(child(dbref,'users/' + user))
-          .then((snapshot)=>{
-            let data=snapshot.val();
-            if(snapshot.exists()){    
-              document.getElementById("groupsAndChats").style.display="block";
-            }
-          })
-        }
-        else{
-          document.getElementById("userNameHead").style.display="block";
-          document.getElementById("inputForUserName").focus();
-        }
-        
-        document.getElementById("changeUser").addEventListener('click',()=>{
-          document.getElementById("groupsAndChats").style.display="none";
-          document.getElementById("userNameHead").style.display="block";
-          document.getElementById("inputForUserName").value='';
-          document.getElementById("password").value='';
-          console.log(selectedgroup);
-          selectedgroup=null;
-          user=null;
-          console.log(user);
-          pw=null;
-          console.log(pw);
-          localStorage.setItem("userName",JSON.stringify(user));
-          localStorage.setItem("password",JSON.stringify(pw));
-          location.reload();
-          document.getElementById("inputForUserName").focus();
-        })
+        localStorage.setItem("userName", JSON.stringify(user));
+        localStorage.setItem("password", JSON.stringify(pw));
+        location.reload();
+        document.getElementById("inputForUserName").focus();
+      });
 
-        document.getElementById("signIn").addEventListener('click', function(){
-          console.log("in signIn");
-          let username=document.getElementById("inputForUserName").value
-          console.log(username);
-          get(child(dbref,'users/' + username))
-          .then((snapshot)=>{
-            let data=snapshot.val();
-            if(snapshot.exists()){
-              if(data.password===document.getElementById("password").value){
-                localStorage.setItem("userName",JSON.stringify(document.getElementById("inputForUserName").value));
-                localStorage.setItem("password",JSON.stringify(document.getElementById("password").value));
-                document.getElementById("userNameHead").style.display="none";
-                document.getElementById("groupsAndChats").style.display="block";
-                
-              }            
-              else{
-                alert("Incorrect Password.");
-              }
+      document.getElementById("signIn").addEventListener("click", function () {
+        console.log("in signIn");
+        let username = document.getElementById("inputForUserName").value;
+        console.log(username);
+        get(child(dbref, "users/" + username)).then((snapshot) => {
+          let data = snapshot.val();
+          if (snapshot.exists()) {
+            if (data.password === document.getElementById("password").value) {
+              localStorage.setItem(
+                "userName",
+                JSON.stringify(
+                  document.getElementById("inputForUserName").value
+                )
+              );
+              localStorage.setItem(
+                "password",
+                JSON.stringify(document.getElementById("password").value)
+              );
+              document.getElementById("userNameHead").style.display = "none";
+              document.getElementById("groupsAndChats").style.display = "block";
+            } else {
+              alert("Incorrect Password.");
             }
-            else{
-              alert("User Doesn't Exist.");
-            }
-          })
-          
-        })           
+          } else {
+            alert("User Doesn't Exist.");
+          }
+        });
+      });
 
-        document.getElementById("signUp").addEventListener('click', function(){
-          console.log("In SignUp");
-          get(child(dbref,'users/' + document.getElementById("inputForUserName").value))
-          .then((snapshot)=>{
-            console.log(snapshot.val());
-            if(snapshot.exists()){              
+      document.getElementById("signUp").addEventListener("click", function () {
+        console.log("In SignUp");
+        get(
+          child(
+            dbref,
+            "users/" + document.getElementById("inputForUserName").value
+          )
+        ).then((snapshot) => {
+          console.log(snapshot.val());
+          if (snapshot.exists()) {
             alert("User Already Exists.");
-            }
-            else{
-              localStorage.setItem("userName",JSON.stringify(document.getElementById("inputForUserName").value));
-              localStorage.setItem("password",JSON.stringify(document.getElementById("password").value));
-              console.log("Username Entered Successfully");
-              document.getElementById("userNameHead").style.display="none";
-              set(ref(database,"users/" + document.getElementById("inputForUserName").value),{
-                userName:document.getElementById("inputForUserName").value,
-                password:document.getElementById("password").value
-              })
-              document.getElementById("userNameHead").style.display="none";
-              document.getElementById("groupsAndChats").style.display="block";
+          } else {
+            localStorage.setItem(
+              "userName",
+              JSON.stringify(document.getElementById("inputForUserName").value)
+            );
+            localStorage.setItem(
+              "password",
+              JSON.stringify(document.getElementById("password").value)
+            );
+            console.log("Username Entered Successfully");
+            document.getElementById("userNameHead").style.display = "none";
+            set(
+              ref(
+                database,
+                "users/" + document.getElementById("inputForUserName").value
+              ),
+              {
+                userName: document.getElementById("inputForUserName").value,
+                password: document.getElementById("password").value,
               }
-            })
-            
-          })
-       
-          document.getElementById("groupBtn").addEventListener('click', function () { 
-            if(document.getElementById("inputForGroupName").value===''){
-              alert("Please Enter Group Name.");
-            }
-            else{
-              let id=Math.floor(Math.random()* 9999);
-              set(ref(database, "groups/" + id+ '/'),{ 
-                groupName:document.getElementById("inputForGroupName").value,
-                id:id 
-              })
-              console.log("Group Entered Successfully");
-              document.getElementById("inputForGroupName").value='';
-            } 
-            document.getElementById("groupAdder").style.display="none";
-            document.getElementById("groupAddBtn").style.display="block";
-          })
-        
-          onChildAdded(onValueRef,(snapshot) => {
-            console.log(snapshot.val())
-            let data=snapshot.val();
-            let group=data.groupName;
-            let groupName=document.createElement("button");
-            groupName.setAttribute("type", "button");
-            groupName.setAttribute("id",data.id);
-            groupName.addEventListener("click", ()=> {
-              messages(data.id);
-            },{once : true})
-            groupName.setAttribute("class","groups");
-            groupName.innerHTML=group;
-            document.getElementById("groupNames").appendChild(groupName);
-          }, (errorObject) => {
-            console.log('The read failed: ' + errorObject.name);
-          }); 
+            );
+            document.getElementById("userNameHead").style.display = "none";
+            document.getElementById("groupsAndChats").style.display = "block";
+          }
+        });
+      });
 
-        let selectedgroup;
-        function messages(id){   
-          document.getElementById("chatArea").innerHTML="";
-          selectedgroup=id;
-          let onvalref=query(ref(database, 'groups/'+ id +'/chats/' ));
-          onChildAdded(onvalref,(snapshot)=>{
-            let data=snapshot.val();
-            let chat=document.createElement("li");
-            let message=document.createElement("div");
-            let inChatName=document.createElement("p");
-            let chats=document.createElement("p");
-            chats.classList.add("text")
+      document
+        .getElementById("groupBtn")
+        .addEventListener("click", function () {
+          if (document.getElementById("inputForGroupName").value === "") {
+            alert("Please Enter Group Name.");
+          } else {
+            let id = Math.floor(Math.random() * 9999);
+            set(ref(database, "groups/" + id + "/"), {
+              groupName: document.getElementById("inputForGroupName").value,
+              id: id,
+            });
+            console.log("Group Entered Successfully");
+            document.getElementById("inputForGroupName").value = "";
+          }
+          document.getElementById("groupAdder").style.display = "none";
+          document.getElementById("groupAddBtn").style.display = "block";
+        });
+
+      onChildAdded(
+        onValueRef,
+        (snapshot) => {
+          console.log(snapshot.val());
+          let data = snapshot.val();
+          let group = data.groupName;
+          let groupName = document.createElement("button");
+          groupName.setAttribute("type", "button");
+          groupName.setAttribute("id", data.id);
+          groupName.addEventListener(
+            "click",
+            () => {
+              messages(data.id);
+            },
+            { once: true }
+          );
+          groupName.setAttribute("class", "groups");
+          groupName.innerHTML = group;
+          document.getElementById("groupNames").appendChild(groupName);
+        },
+        (errorObject) => {
+          console.log("The read failed: " + errorObject.name);
+        }
+      );
+
+      let selectedgroup;
+      function messages(id) {
+        document.getElementById("chatArea").innerHTML = "";
+        selectedgroup = id;
+        let onvalref = query(ref(database, "groups/" + id + "/chats/"));
+        onChildAdded(
+          onvalref,
+          (snapshot) => {
+            let data = snapshot.val();
+            let chat = document.createElement("li");
+            let message = document.createElement("div");
+            let inChatName = document.createElement("p");
+            let chats = document.createElement("p");
+            chats.classList.add("text");
             inChatName.classList.add("inChatName");
-            let userName=JSON.parse(localStorage.getItem("userName"));
-            if(userName===data.username){
+            let userName = JSON.parse(localStorage.getItem("userName"));
+            if (userName === data.username) {
               message.classList.add("chatsGet");
-              chat.setAttribute("style","text-align:right;")
-            }
-            else{
+              chat.setAttribute("style", "text-align:right;");
+            } else {
               message.classList.add("chatsSend");
-              chat.setAttribute("style","text-align:left;")
+              chat.setAttribute("style", "text-align:left;");
             }
-            let name=document.createTextNode(data.username);
+            let name = document.createTextNode(data.username);
             inChatName.appendChild(name);
-            let text=document.createTextNode(data.message);
+            let text = document.createTextNode(data.message);
             chats.appendChild(text);
             message.appendChild(inChatName);
             message.appendChild(chats);
-            chat.scrollIntoView({behavior:"smooth"});
+            chat.scrollIntoView({ behavior: "smooth" });
             chat.appendChild(message);
+            chat
             document.getElementById("chatArea").appendChild(chat);
-            let lastchat=document.getElementById("chatArea").lastChild;
+            let lastchat = document.getElementById("chatArea").lastChild;
             lastchat.scrollIntoView();
-          },{once : true}),
-          document.getElementById("selectGroup").style.display="none";
-          document.getElementById("chatsAfterGroupSelect").style.display="block";
-          document.getElementById("inputForMessage").focus();
-          
-        }
+          },
+          { once: true }
+        ),
+          (document.getElementById("selectGroup").style.display = "none");
+        document.getElementById("chatsAfterGroupSelect").style.display =
+          "block";
+        document.getElementById("inputForMessage").focus();
+      }
 
-        document.getElementById("messageBtn").addEventListener("click", function(id){
-            let message=document.getElementById("inputForMessage").value;
-            let userName=JSON.parse(localStorage.getItem("userName"));
-            if(message!==''){
-              push(ref(database, "groups/"+ selectedgroup +"/chats/"),{
-                message:message,
-                username:userName
-              })
-            }
-            console.log("message Entered Successfully");
-            document.getElementById("inputForMessage").value='';
-            document.getElementById("inputForMessage").focus();
+      document
+        .getElementById("messageBtn")
+        .addEventListener("click", function (id) {
+          let message = document.getElementById("inputForMessage").value;
+          let userName = JSON.parse(localStorage.getItem("userName"));
+          if (message !== "") {
+            push(ref(database, "groups/" + selectedgroup + "/chats/"), {
+              message: message,
+              username: userName,
+            });
+          }
+          console.log("message Entered Successfully");
+          document.getElementById("inputForMessage").value = "";
+          document.getElementById("inputForMessage").focus();
         });
-      </script>
-    </body>
+    </script>
+  </body>
 </html>
