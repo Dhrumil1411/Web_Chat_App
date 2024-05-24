@@ -350,8 +350,8 @@
         get(child(dbref,'users/' + user))
           .then((snapshot)=>{
             let data=snapshot.val();
-            if(snapshot.exists()){
-                document.getElementById("groupsAndChats").style.display="block";
+            if(snapshot.exists()){    
+              document.getElementById("groupsAndChats").style.display="block";
             }
           })
         }
@@ -365,18 +365,22 @@
           document.getElementById("userNameHead").style.display="block";
           document.getElementById("inputForUserName").value='';
           document.getElementById("password").value='';
-          document.getElementById("inputForUserName").focus();
+          console.log(selectedgroup);
+          selectedgroup=null;
           user=null;
           console.log(user);
           pw=null;
           console.log(pw);
           localStorage.setItem("userName",JSON.stringify(user));
           localStorage.setItem("password",JSON.stringify(pw));
+          location.reload();
+          document.getElementById("inputForUserName").focus();
         })
 
         document.getElementById("signIn").addEventListener('click', function(){
           console.log("in signIn");
           let username=document.getElementById("inputForUserName").value
+          console.log(username);
           get(child(dbref,'users/' + username))
           .then((snapshot)=>{
             let data=snapshot.val();
@@ -386,6 +390,7 @@
                 localStorage.setItem("password",JSON.stringify(document.getElementById("password").value));
                 document.getElementById("userNameHead").style.display="none";
                 document.getElementById("groupsAndChats").style.display="block";
+                
               }            
               else{
                 alert("Incorrect Password.");
@@ -395,6 +400,7 @@
               alert("User Doesn't Exist.");
             }
           })
+          
         })           
 
         document.getElementById("signUp").addEventListener('click', function(){
@@ -418,9 +424,10 @@
               document.getElementById("groupsAndChats").style.display="block";
               }
             })
+            
           })
        
-          document.getElementById("groupBtn").addEventListener('click', function () {
+          document.getElementById("groupBtn").addEventListener('click', function () { 
             if(document.getElementById("inputForGroupName").value===''){
               alert("Please Enter Group Name.");
             }
@@ -445,6 +452,7 @@
             groupName.setAttribute("type", "button");
             groupName.setAttribute("id",data.id);
             groupName.addEventListener("click", ()=> {
+              document.getElementById(data.id).click();
               messages(data.id);
             })
             groupName.setAttribute("class","groups");
@@ -455,12 +463,11 @@
           }); 
 
         let selectedgroup;
-        function messages(id){
+        function messages(id){   
           document.getElementById("chatArea").innerHTML="";
           selectedgroup=id;
           let onvalref=query(ref(database, 'groups/'+ id +'/chats/' ));
           onChildAdded(onvalref,(snapshot)=>{
-            console.log(snapshot.val());
             let data=snapshot.val();
             let chat=document.createElement("li");
             let message=document.createElement("div");
@@ -468,8 +475,6 @@
             let chats=document.createElement("p");
             chats.classList.add("text")
             inChatName.classList.add("inChatName");
-            
-            console.log(inChatName);
             let userName=JSON.parse(localStorage.getItem("userName"));
             if(userName===data.username){
               message.classList.add("chatsGet");
@@ -485,13 +490,16 @@
             chats.appendChild(text);
             message.appendChild(inChatName);
             message.appendChild(chats);
+            chat.scrollIntoView({behavior:"smooth"});
             chat.appendChild(message);
             document.getElementById("chatArea").appendChild(chat);
-            chat.scrollIntoView();
+            let lastchat=document.getElementById("chatArea").lastChild;
+            lastchat.scrollIntoView();
           })
           document.getElementById("selectGroup").style.display="none";
           document.getElementById("chatsAfterGroupSelect").style.display="block";
           document.getElementById("inputForMessage").focus();
+          
         }
 
         document.getElementById("messageBtn").addEventListener("click", function(id){
