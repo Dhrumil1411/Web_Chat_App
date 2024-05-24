@@ -453,7 +453,7 @@
             groupName.setAttribute("id",data.id);
             groupName.addEventListener("click", ()=> {
               messages(data.id);
-            })
+            },{once : true})
             groupName.setAttribute("class","groups");
             groupName.innerHTML=group;
             document.getElementById("groupNames").appendChild(groupName);
@@ -494,7 +494,7 @@
             document.getElementById("chatArea").appendChild(chat);
             let lastchat=document.getElementById("chatArea").lastChild;
             lastchat.scrollIntoView();
-          })
+          },{once : true}),
           document.getElementById("selectGroup").style.display="none";
           document.getElementById("chatsAfterGroupSelect").style.display="block";
           document.getElementById("inputForMessage").focus();
