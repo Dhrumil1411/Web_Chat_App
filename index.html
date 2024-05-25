@@ -316,6 +316,22 @@
       .chatSelect {
         display: none;
       }
+
+      .time {
+        font-size: 11px;
+        margin: 0px;
+        margin-right: 5px;
+        font-weight: 800;
+        font-family: arial;
+      }
+
+      .date {
+        border: 1px solid black;
+        color: black;
+        border-radius: 10px;
+        text-align: center;
+        width: auto;
+      }
     </style>
   </head>
 
@@ -634,23 +650,25 @@
       );
       let selectedgroup = null;
       let onvalref = null;
+      let dateDisplayed = false;
+      let todayDate = new Date().toDateString();
       function messages(id) {
         let onvalref = query(ref(database, "groups/" + id + "/chats/"));
+
         if (onvalref) {
           off(onvalref);
         }
-        selectedgroup = id;
         document.getElementById("chatArea").innerHTML = "";
-        
+        selectedgroup = id;
+        let isDateShowed = false;
         onChildAdded(onvalref, (snapshot) => {
           let data = snapshot.val();
-          let now= new Date();
-          let currentDateTime=now.toLocaleString();
-          console.log(currentDateTime);
           let chat = document.createElement("li");
           let message = document.createElement("div");
           let inChatName = document.createElement("p");
           let chats = document.createElement("p");
+          let chatTime = document.createElement("p");
+          chatTime.classList.add("time");
           chats.classList.add("text");
           inChatName.classList.add("inChatName");
           let userName = JSON.parse(localStorage.getItem("userName"));
@@ -665,20 +683,31 @@
           inChatName.appendChild(name);
           let text = document.createTextNode(data.message);
           chats.appendChild(text);
+          let time = document.createTextNode(data.hour + ":" + data.minute);
+          chatTime.appendChild(time);
           message.appendChild(inChatName);
           message.appendChild(chats);
+          message.appendChild(chatTime);
           chat.scrollIntoView({ behavior: "smooth" });
           chat.appendChild(message);
+          if (isDateShowed === false) {
+            let date = document.createElement("p");
+            date.classList.add("date");
+            let Date = document.createTextNode(data.date);
+            date.appendChild(Date);
+            document.getElementById("chatArea").appendChild(date);
+            isDateShowed = true;
+          }
           document.getElementById("chatArea").appendChild(chat);
           let lastChat = document.getElementById("chatArea").lastChild;
-          lastChat.scrollIntoView();
+          lastChat.scrollIntoView({ behavior: "smooth" });
         }),
           (document.getElementById("selectGroup").style.display = "none");
-
         document.getElementById("chatsAfterGroupSelect").style.display =
           "block";
         document.getElementById("inputForMessage").focus();
-        document.getElementById("chatArea").scrollTop=document.getElementById("chatArea").scrollHeight;
+        document.getElementById("chatArea").scrollTop =
+          document.getElementById("chatArea").scrollHeight;
       }
 
       document
@@ -690,16 +719,23 @@
             document.getElementById("inputForMessage").focus();
           }
         });
-
       document
         .getElementById("messageBtn")
         .addEventListener("click", function (id) {
           let message = document.getElementById("inputForMessage").value;
           let userName = JSON.parse(localStorage.getItem("userName"));
+          let time = new Date();
+          let hour = time.getHours();
+          let minute = time.getMinutes();
+          let date = time.toLocaleDateString();
+          time.getMinutes();
           if (message !== "") {
             push(ref(database, "groups/" + selectedgroup + "/chats/"), {
               message: message,
               username: userName,
+              hour: hour,
+              minute: minute,
+              date: date,
             });
           }
           console.log("message Entered Successfully");
