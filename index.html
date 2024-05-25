@@ -84,7 +84,7 @@
         padding-bottom: 3px;
         letter-spacing: 1px;
         border: 1px solid black;
-        display:inline-block;
+        display: inline-block;
         word-wrap: break-word;
         max-width: 60%;
       }
@@ -112,7 +112,7 @@
         padding-left: 10px;
         overflow-y: auto;
         overflow-x: hidden;
-        height:70vh;
+        height: 70vh;
         display: block;
       }
 
@@ -164,10 +164,18 @@
         cursor: pointer;
       }
 
-      .groupSelected{
+      .groupSelected {
         background-color: black;
         color: white;
-        border-color: white;
+        height: 5%;
+        width: auto;
+        min-width: 15%;
+        border: 2px solid white;
+        padding: 5px 10px 5px 10px;
+        border-radius: 10px;
+        font-family: Arial;
+        margin-right: 5px;
+        height: 30px;
       }
 
       .formArea {
@@ -265,48 +273,47 @@
         word-wrap: break-word;
       }
 
-      .chatsAfterGroupSelect{
+      .chatsAfterGroupSelect {
         margin: 10px;
       }
 
-      @media screen and (max-width:992px) {
-
-        .groupAdderBtn{
+      @media screen and (max-width: 992px) {
+        .groupAdderBtn {
           width: 97%;
         }
 
-        .changeUser{
+        .changeUser {
           width: 97%;
         }
 
-        .groupHead{
+        .groupHead {
           text-align: center;
         }
 
-        .groupfooter{
+        .groupfooter {
           text-align: center;
         }
 
-        .allChats{
+        .allChats {
           height: 75vh;
         }
       }
 
-      .groupsList{
+      .groupsList {
         border: 1px solid black;
         width: auto;
-        height: auto ;
+        height: auto;
         margin-right: 5px;
         margin-left: 5px;
         overflow-y: hidden;
-        overflow-x:auto;
+        overflow-x: auto;
         margin-top: 10px;
         padding: 5px 10px 5px 10px;
         border-radius: 10px;
         text-wrap: nowrap;
       }
 
-      .chatSelect{
+      .chatSelect {
         display: none;
       }
     </style>
@@ -367,7 +374,16 @@
         </form>
       </div>
       <div id="groupNames" style="display: block">
-        <p style="font-family: arial; font-size: 17px; font-weight: bolder; margin: 5px; margin-top: 10px;" class="groupHead">
+        <p
+          style="
+            font-family: arial;
+            font-size: 17px;
+            font-weight: bolder;
+            margin: 5px;
+            margin-top: 10px;
+          "
+          class="groupHead"
+        >
           CHAT GROUPS :
         </p>
         <div id="groupsList" class="groupsList"></div>
@@ -380,8 +396,12 @@
         Please Select Or Create A Group!
       </p>
 
-      <div id="chatsAfterGroupSelect" style="display: none" class="chatsAfterGroupSelect">
-        <div class="allChats" id=""allChats>
+      <div
+        id="chatsAfterGroupSelect"
+        style="display: none"
+        class="chatsAfterGroupSelect"
+      >
+        <div class="allChats" id="" allChats>
           <ul
             id="chatArea"
             style="list-style: none; font-family: sans-serif; padding-left: 0px"
@@ -420,7 +440,7 @@
         onValue,
         query,
         onChildAdded,
-        off
+        off,
       } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
       // TODO: Add SDKs for Firebase products that you want to use
       // https://firebase.google.com/docs/web/setup#available-libraries
@@ -590,7 +610,6 @@
           document.getElementById("groupAddBtn").style.display = "block";
         });
 
-        let functionCalled=[];
       onChildAdded(
         onValueRef,
         (snapshot) => {
@@ -600,65 +619,78 @@
           let groupName = document.createElement("button");
           groupName.setAttribute("type", "button");
           groupName.setAttribute("id", data.id);
-          groupName.addEventListener(
-            "click",
-            () => {
-              messages(data.id);
-            },
-          );
+          groupName.addEventListener("click", () => {
+            messages(data.id);
+            document.getElementById("inputForMessage").focus();
+          });
           groupName.setAttribute("class", "groups");
           groupName.innerHTML = group;
           document.getElementById("groupsList").appendChild(groupName);
-          
+          document.getElementById("inputForMessage").focus();
         },
         (errorObject) => {
           console.log("The read failed: " + errorObject.name);
         }
       );
-
-      let selectedgroup;
+      let selectedgroup = null;
+      let onvalref = null;
       function messages(id) {
-        document.getElementById("chatArea").innerHTML = "";
-        selectedgroup = id;
         let onvalref = query(ref(database, "groups/" + id + "/chats/"));
-        onChildAdded(
-          onvalref,
-          (snapshot) => {
-            let data = snapshot.val();
-            let chat = document.createElement("li");
-            let message = document.createElement("div");
-            let inChatName = document.createElement("p");
-            let chats = document.createElement("p");
-            chats.classList.add("text");
-            inChatName.classList.add("inChatName");
-            let userName = JSON.parse(localStorage.getItem("userName"));
-            if (userName === data.username) {
-              message.classList.add("chatsGet");
-              chat.setAttribute("style", "text-align:right;");
-            } else {
-              message.classList.add("chatsSend");
-              chat.setAttribute("style", "text-align:left;");
-            }
-            let name = document.createTextNode(data.username);
-            inChatName.appendChild(name);
-            let text = document.createTextNode(data.message);
-            chats.appendChild(text);
-            message.appendChild(inChatName);
-            message.appendChild(chats);
-            chat.scrollIntoView({ behavior: "smooth" });
-            chat.appendChild(message);
-            chat
-            document.getElementById("chatArea").appendChild(chat);
-            let lastchat = document.getElementById("chatArea").lastChild;
-            lastchat.scrollIntoView();
-          },
-        ),
+        if (onvalref) {
+          off(onvalref);
+        }
+        selectedgroup = id;
+        document.getElementById("chatArea").innerHTML = "";
+        
+        onChildAdded(onvalref, (snapshot) => {
+          let data = snapshot.val();
+          let now= new Date();
+          let currentDateTime=now.toLocaleString();
+          console.log(currentDateTime);
+          let chat = document.createElement("li");
+          let message = document.createElement("div");
+          let inChatName = document.createElement("p");
+          let chats = document.createElement("p");
+          chats.classList.add("text");
+          inChatName.classList.add("inChatName");
+          let userName = JSON.parse(localStorage.getItem("userName"));
+          if (userName === data.username) {
+            message.classList.add("chatsGet");
+            chat.setAttribute("style", "text-align:right;");
+          } else {
+            message.classList.add("chatsSend");
+            chat.setAttribute("style", "text-align:left;");
+          }
+          let name = document.createTextNode(data.username);
+          inChatName.appendChild(name);
+          let text = document.createTextNode(data.message);
+          chats.appendChild(text);
+          message.appendChild(inChatName);
+          message.appendChild(chats);
+          chat.scrollIntoView({ behavior: "smooth" });
+          chat.appendChild(message);
+          document.getElementById("chatArea").appendChild(chat);
+          let lastChat = document.getElementById("chatArea").lastChild;
+          lastChat.scrollIntoView();
+        }),
           (document.getElementById("selectGroup").style.display = "none");
+
         document.getElementById("chatsAfterGroupSelect").style.display =
           "block";
         document.getElementById("inputForMessage").focus();
+        document.getElementById("chatArea").scrollTop=document.getElementById("chatArea").scrollHeight;
       }
-      
+
+      document
+        .getElementById("groupsList")
+        .addEventListener("click", (event) => {
+          if (event.target.classList.contains("groups")) {
+            let groupId = event.target.id;
+            messages(groupId);
+            document.getElementById("inputForMessage").focus();
+          }
+        });
+
       document
         .getElementById("messageBtn")
         .addEventListener("click", function (id) {
