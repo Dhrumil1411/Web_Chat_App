@@ -332,6 +332,19 @@
         text-align: center;
         width: auto;
       }
+
+      .googleLoginBtn{
+        border-radius: 20px;
+        border:1px solid black;
+        text-align: center;
+        margin: 5px;
+        margin-bottom: 10px;
+        padding: 5px;
+      }
+
+      .googleLoginBtn:hover{
+        cursor: pointer;
+      }
     </style>
   </head>
 
@@ -358,7 +371,8 @@
             autocomplete="off"
           /><br />
           <button type="button" id="signIn" class="signIn">SIGN IN</button>
-          <button type="button" id="signUp" class="signUp">SIGN UP</button>
+          <button type="button" id="signUp" class="signUp">SIGN UP</button><br>
+          <button type="button" id="googleLoginBtn" class="googleLoginBtn"><img width="20" height="20" src="https://img.icons8.com/color/48/google-logo.png" alt="google-logo" style="float: left; margin-right: 7px;"/><p style="float: left; margin: 1px; font-size: 15px;">Sign In With Google</p></button>
         </form>
       </div>
     </div>
@@ -458,6 +472,12 @@
         onChildAdded,
         off,
       } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
+      import {
+        getAuth,
+        signInWithPopup,
+        GoogleAuthProvider,
+      } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+
       // TODO: Add SDKs for Firebase products that you want to use
       // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -477,7 +497,27 @@
       const app = initializeApp(firebaseConfig);
       const database = getDatabase();
       const onValueRef = query(ref(database, "groups/"));
+      const provider = new GoogleAuthProvider();
+      const auth = getAuth(app);
+      
       //script codes
+
+      let googleLogin=document.getElementById("googleLoginBtn");
+      googleLogin.addEventListener("click", function(){
+        signInWithPopup(auth, provider)
+        .then((result) => {
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          const token = credential.accessToken;
+          const user = result.user;
+          console.log(user);
+          document.getElementById("userNameHead").style.display = "none";
+          document.getElementById("groupsAndChats").style.display = "block";
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+        });
+      })
 
       let click = document.getElementById("inputForMessage");
       click.addEventListener("keypress", function (event) {
