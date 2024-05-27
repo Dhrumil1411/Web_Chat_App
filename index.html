@@ -330,7 +330,11 @@
         color: black;
         border-radius: 10px;
         text-align: center;
-        width: auto;
+        width: fit-content;
+        text-align: center;
+        padding: 5px 10px 5px 10px;
+        margin-left: auto;
+        margin-right: auto;
       }
 
       .googleLoginBtn {
@@ -468,7 +472,6 @@
     </div>
 
     <script type="module">
-
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
 
       import {
@@ -575,8 +578,6 @@
       const dbref = ref(database);
       let user = JSON.parse(localStorage.getItem("userName"));
       let pw = JSON.parse(localStorage.getItem("password"));
-      console.log(user);
-      console.log(pw);
 
       if (user !== null || pw !== null) {
         get(child(dbref, "users/" + user)).then((snapshot) => {
@@ -734,7 +735,7 @@
         }
         document.getElementById("chatArea").innerHTML = "";
         selectedgroup = id;
-        let isDateShowed = false;
+        let isDateShowed = null;
         onChildAdded(onvalref, (snapshot) => {
           let data = snapshot.val();
           let chat = document.createElement("li");
@@ -764,13 +765,14 @@
           message.appendChild(chatTime);
           chat.scrollIntoView({ behavior: "smooth" });
           chat.appendChild(message);
-          if (isDateShowed === false) {
-            let date = document.createElement("p");
-            date.classList.add("date");
-            let Date = document.createTextNode(data.date);
-            date.appendChild(Date);
+          let date = document.createElement("p");
+          date.classList.add("date");
+          let Date = document.createTextNode(data.date);
+          date.appendChild(Date);
+          if (isDateShowed !== data.date || isDateShowed === null) {
             document.getElementById("chatArea").appendChild(date);
-            isDateShowed = true;
+            isDateShowed = data.date;
+            console.log(isDateShowed);
           }
           document.getElementById("chatArea").appendChild(chat);
           let lastChat = document.getElementById("chatArea").lastChild;
@@ -817,7 +819,6 @@
           document.getElementById("inputForMessage").value = "";
           document.getElementById("inputForMessage").focus();
         });
-        
     </script>
   </body>
 </html>
