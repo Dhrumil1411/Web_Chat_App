@@ -333,16 +333,16 @@
         width: auto;
       }
 
-      .googleLoginBtn{
+      .googleLoginBtn {
         border-radius: 20px;
-        border:1px solid black;
+        border: 1px solid black;
         text-align: center;
         margin: 5px;
         margin-bottom: 10px;
         padding: 5px;
       }
 
-      .googleLoginBtn:hover{
+      .googleLoginBtn:hover {
         cursor: pointer;
       }
     </style>
@@ -371,8 +371,20 @@
             autocomplete="off"
           /><br />
           <button type="button" id="signIn" class="signIn">SIGN IN</button>
-          <button type="button" id="signUp" class="signUp">SIGN UP</button><br>
-          <button type="button" id="googleLoginBtn" class="googleLoginBtn"><img width="20" height="20" src="https://img.icons8.com/color/48/google-logo.png" alt="google-logo" style="float: left; margin-right: 7px;"/><p style="float: left; margin: 1px; font-size: 15px;">Sign In With Google</p></button>
+          <button type="button" id="signUp" class="signUp">SIGN UP</button
+          ><br />
+          <button type="button" id="googleLoginBtn" class="googleLoginBtn">
+            <img
+              width="20"
+              height="20"
+              src="https://img.icons8.com/color/48/google-logo.png"
+              alt="google-logo"
+              style="float: left; margin-right: 7px"
+            />
+            <p style="float: left; margin: 1px; font-size: 15px">
+              Sign In With Google
+            </p>
+          </button>
         </form>
       </div>
     </div>
@@ -383,7 +395,7 @@
           Add New Group
         </button>
         <button type="button" id="changeUser" class="changeUser">
-          Change Account
+          Sign Out
         </button>
       </div>
       <div id="groupAdder" class="groupAdder">
@@ -456,8 +468,9 @@
     </div>
 
     <script type="module">
-      // Import the functions you need from the SDKs you need
+
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+
       import {
         getDatabase,
         set,
@@ -472,16 +485,15 @@
         onChildAdded,
         off,
       } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-database.js";
+
       import {
         getAuth,
         signInWithPopup,
         GoogleAuthProvider,
+        signOut,
+        onAuthStateChanged,
       } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 
-      // TODO: Add SDKs for Firebase products that you want to use
-      // https://firebase.google.com/docs/web/setup#available-libraries
-
-      // Your web app's Firebase configuration
       const firebaseConfig = {
         apiKey: "AIzaSyB-r_eRpmJCAhjcwZiSKUy2QZlegPUCdNE",
         authDomain: "chat-application-8e9ce.firebaseapp.com",
@@ -494,30 +506,43 @@
       };
 
       // Initialize Firebase
+
       const app = initializeApp(firebaseConfig);
       const database = getDatabase();
       const onValueRef = query(ref(database, "groups/"));
       const provider = new GoogleAuthProvider();
       const auth = getAuth(app);
-      
+
       //script codes
 
-      let googleLogin=document.getElementById("googleLoginBtn");
-      googleLogin.addEventListener("click", function(){
-        signInWithPopup(auth, provider)
-        .then((result) => {
-          const credential = GoogleAuthProvider.credentialFromResult(result);
-          const token = credential.accessToken;
-          const user = result.user;
-          console.log(user);
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
           document.getElementById("userNameHead").style.display = "none";
           document.getElementById("groupsAndChats").style.display = "block";
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-        });
-      })
+          localStorage.setItem("userName", JSON.stringify(user.displayName));
+        } else {
+          document.getElementById("groupsAndChats").style.display = "none";
+          document.getElementById("userNameHead").style.display = "block";
+        }
+      });
+
+      const userSignedIn = async () => {
+        signInWithPopup(auth, provider)
+          .then((result) => {
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            const user = result.user;
+            console.log(user);
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+          });
+      };
+
+      document
+        .getElementById("googleLoginBtn")
+        .addEventListener("click", userSignedIn);
 
       let click = document.getElementById("inputForMessage");
       click.addEventListener("keypress", function (event) {
@@ -552,7 +577,8 @@
       let pw = JSON.parse(localStorage.getItem("password"));
       console.log(user);
       console.log(pw);
-      if (user !== null && pw !== null) {
+
+      if (user !== null || pw !== null) {
         get(child(dbref, "users/" + user)).then((snapshot) => {
           let data = snapshot.val();
           if (snapshot.exists()) {
@@ -564,22 +590,28 @@
         document.getElementById("inputForUserName").focus();
       }
 
-      document.getElementById("changeUser").addEventListener("click", () => {
-        document.getElementById("groupsAndChats").style.display = "none";
-        document.getElementById("userNameHead").style.display = "block";
-        document.getElementById("inputForUserName").value = "";
-        document.getElementById("password").value = "";
-        console.log(selectedgroup);
-        selectedgroup = null;
-        user = null;
-        console.log(user);
-        pw = null;
-        console.log(pw);
-        localStorage.setItem("userName", JSON.stringify(user));
-        localStorage.setItem("password", JSON.stringify(pw));
-        location.reload();
-        document.getElementById("inputForUserName").focus();
-      });
+      const userSignedOut = async () => {
+        signOut(auth)
+          .then(() => {
+            document.getElementById("inputForUserName").value = "";
+            document.getElementById("password").value = "";
+            console.log(selectedgroup);
+            selectedgroup = null;
+            user = null;
+            console.log(user);
+            pw = null;
+            console.log(pw);
+            localStorage.setItem("userName", JSON.stringify(user));
+            localStorage.setItem("password", JSON.stringify(pw));
+            location.reload();
+            document.getElementById("inputForUserName").focus();
+          })
+          .catch((error) => {});
+      };
+
+      document
+        .getElementById("changeUser")
+        .addEventListener("click", userSignedOut);
 
       document.getElementById("signIn").addEventListener("click", function () {
         console.log("in signIn");
@@ -688,10 +720,12 @@
           console.log("The read failed: " + errorObject.name);
         }
       );
+
       let selectedgroup = null;
       let onvalref = null;
       let dateDisplayed = false;
       let todayDate = new Date().toDateString();
+
       function messages(id) {
         let onvalref = query(ref(database, "groups/" + id + "/chats/"));
 
@@ -759,6 +793,7 @@
             document.getElementById("inputForMessage").focus();
           }
         });
+
       document
         .getElementById("messageBtn")
         .addEventListener("click", function (id) {
@@ -782,6 +817,7 @@
           document.getElementById("inputForMessage").value = "";
           document.getElementById("inputForMessage").focus();
         });
+        
     </script>
   </body>
 </html>
