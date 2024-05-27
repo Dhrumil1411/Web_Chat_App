@@ -406,7 +406,7 @@
         cursor: pointer;
       }
 
-      .inChatPFP{
+      .inChatPFP {
         width: 20px;
         height: 20px;
         border-radius: 20px;
@@ -444,8 +444,13 @@
           style="border: 1px solid black; border-radius: 20px"
           height="40px"
           width="40px"
-        /></button
-      ><p id="profileName" style="font-size: 30px; font-family: arial; font-weight: bold;"></p><br />
+        />
+      </button>
+      <p
+        id="profileName"
+        style="font-size: 30px; font-family: arial; font-weight: bold"
+      ></p>
+      <br />
       <button
         type="button"
         id="changeUser"
@@ -586,17 +591,16 @@
       //script codes
 
       let userInfo = JSON.parse(localStorage.getItem("userInfo"));
-
       onAuthStateChanged(auth, (user) => {
         if (user) {
           document.getElementById("userNameHead").style.display = "none";
           document.getElementById("profile").style.display = "block";
           document.getElementById("groupsAndChats").style.display = "block";
           get(child(dbref, "users/" + user.display)).then((snapshot) => {
-            let obj={
-              userName:user.displayName,
-              email:user.email,
-              profilePicture:user.photoURL
+            let obj = {
+              userName: user.displayName,
+              email: user.email,
+              profilePicture: user.photoURL,
             };
             localStorage.setItem("userInfo", JSON.stringify(obj));
             let data = snapshot.val();
@@ -674,10 +678,12 @@
 
       const dbref = ref(database);
 
-      if (userInfo.userName !== null) {
+      if (userInfo !== null) {
         get(child(dbref, "users/" + userInfo.userName)).then((snapshot) => {
           let data = snapshot.val();
           if (snapshot.exists()) {
+            document.getElementById("userNameHead").style.display = "none";
+            document.getElementById("profile").style.display = "block";
             document.getElementById("groupsAndChats").style.display = "block";
           }
         });
@@ -688,10 +694,14 @@
       const userSignedOut = async () => {
         signOut(auth)
           .then(() => {
-            document.getElementById("inputForUserName").value = "";
-            console.log(selectedgroup);
-            selectedgroup = null;
-            location.reload();
+            document.getElementById("profileClose").click();
+            document.getElementById("userNameHead").style.display = "block";
+            document.getElementById("profile").style.display = "none";
+            document.getElementById("groupsAndChats").style.display = "none";
+            console.log(userInfo);
+            userInfo = null;
+            console.log(userInfo);
+            localStorage.setItem("userInfo", JSON.stringify(userInfo));
           })
           .catch((error) => {});
       };
@@ -762,8 +772,8 @@
           let inChatName = document.createElement("p");
           let chats = document.createElement("p");
           let chatTime = document.createElement("p");
-          let profilePicture= document.createElement("img");
-          profilePicture.setAttribute("src",userInfo.profilePicture);
+          let profilePicture = document.createElement("img");
+          profilePicture.setAttribute("src", userInfo.profilePicture);
           profilePicture.classList.add("inChatPFP");
           chatTime.classList.add("time");
           chats.classList.add("text");
@@ -771,11 +781,11 @@
           if (userInfo.userName === data.userName) {
             message.classList.add("chatsGet");
             chat.setAttribute("style", "text-align:right;");
-            profilePicture.setAttribute("style","float:right;");
+            profilePicture.setAttribute("style", "float:right;");
           } else {
             message.classList.add("chatsSend");
             chat.setAttribute("style", "text-align:left;");
-            profilePicture.setAttribute("style","float:left;");
+            profilePicture.setAttribute("style", "float:left;");
           }
           let name = document.createTextNode(data.userName);
           inChatName.appendChild(name);
@@ -826,8 +836,8 @@
         .addEventListener("click", function (id) {
           let message = document.getElementById("inputForMessage").value;
           let userInfo = JSON.parse(localStorage.getItem("userInfo"));
-          let userName=userInfo.userName;
-          let profilePicture=userInfo.profilePicture  ;
+          let userName = userInfo.userName;
+          let profilePicture = userInfo.profilePicture;
           let time = new Date();
           let hour = time.getHours();
           let minute = time.getMinutes();
@@ -840,7 +850,7 @@
               hour: hour,
               minute: minute,
               date: date,
-              photoURL:profilePicture
+              photoURL: profilePicture,
             });
 
             console.log("message Entered Successfully");
