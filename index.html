@@ -591,10 +591,10 @@
       //script codes
 
       let userInfo = JSON.parse(localStorage.getItem("userInfo"));
-      document.getElementById("profilePicture").setAttribute("src","userIfo.profilePicture");
+      
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          
+          document.getElementById("profilePicture").setAttribute("src",user.photoURL);
           document.getElementById("userNameHead").style.display = "none";
           document.getElementById("profile").style.display = "block";
           document.getElementById("groupsAndChats").style.display = "block";
@@ -775,7 +775,7 @@
           let chats = document.createElement("p");
           let chatTime = document.createElement("p");
           let profilePicture = document.createElement("img");
-          profilePicture.setAttribute("src", userInfo.profilePicture);
+          profilePicture.setAttribute("src", data.photoURL);
           profilePicture.classList.add("inChatPFP");
           chatTime.classList.add("time");
           chats.classList.add("text");
