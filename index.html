@@ -440,7 +440,7 @@
     <div id="profile" style="display: none">
       <button type="button" id="profileBtn" class="profileBtn">
         <img
-          src="https://lh3.googleusercontent.com/a/ACg8ocKjiPFZD6w3MjPq5qx3YZxY8n4K5Ab35pPQ438Dx0I5AP3xAmJa=s96-c"
+          id="profilePicture"
           style="border: 1px solid black; border-radius: 20px"
           height="40px"
           width="40px"
@@ -591,8 +591,10 @@
       //script codes
 
       let userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      document.getElementById("profilePicture").setAttribute("src","userIfo.profilePicture");
       onAuthStateChanged(auth, (user) => {
         if (user) {
+          
           document.getElementById("userNameHead").style.display = "none";
           document.getElementById("profile").style.display = "block";
           document.getElementById("groupsAndChats").style.display = "block";
