@@ -57,18 +57,20 @@
         border-radius: 10px;
         border: 2px solid black;
         padding: 5px;
+        float: left;
       }
 
       .messageBtn {
         height: 5%;
         width: auto;
         min-width: 10%;
-        margin: 5px;
         border: 2px solid black;
         padding: 5px;
         border-radius: 10px;
         color: black;
         font-family: Arial;
+        float: left;
+        margin-left: 10px;
       }
 
       .messageBtn:hover {
@@ -106,7 +108,6 @@
       .allChats {
         width: auto;
         height: auto;
-        border: 1px solid black;
         border-radius: 10px;
         padding-right: 10px;
         padding-left: 10px;
@@ -373,6 +374,9 @@
         cursor: pointer;
       }
 
+      .profile {
+        height: 50px;
+      }
       .changeUserName {
         height: 5%;
         width: auto;
@@ -415,6 +419,25 @@
         margin-left: 5px;
         border: 1px solid black;
       }
+
+      .messageForm {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      .groupNameInChat{
+        margin-left: auto;
+        margin-right: auto;
+         padding: 3px 5px 3px 5px;
+        background-color: black;
+        width: fit-content;
+        height: fit-content;
+        color: white;
+        font-family: arial;
+        border-radius: 5px;
+        text-align: center;
+      }
     </style>
   </head>
 
@@ -446,10 +469,6 @@
           width="40px"
         />
       </button>
-      <p
-        id="profileName"
-        style="font-size: 30px; font-family: arial; font-weight: bold"
-      ></p>
       <br />
       <button
         type="button"
@@ -468,7 +487,7 @@
         Close
       </button>
     </div>
-    <div id="groupsAndChats" class="groupsAndChats" style="display: none">
+    <div id="groupsAndChats" class="groupsAndChats" style="display: none; border: 0px;">
       <div id="groupAddBtn">
         <button type="button" class="groupAdderBtn" id="groupAdderBtn">
           Add New Group
@@ -514,19 +533,23 @@
         Please Select Or Create A Group!
       </p>
 
-      <div
-        id="chatsAfterGroupSelect"
-        style="display: none"
-        class="chatsAfterGroupSelect"
-      >
-        <div class="allChats" id="" allChats>
-          <ul
-            id="chatArea"
-            style="list-style: none; font-family: sans-serif; padding-left: 0px"
-          ></ul>
-        </div>
-
-        <div>
+      <div>
+        <div
+          id="chatsAfterGroupSelect"
+          style="display: none; border: 0px;"
+          class="chatsAfterGroupSelect"
+        >
+          <div class="allChats" id="allChats" ><p id="groupNameInChat" class="groupNameInChat"></p>
+            <ul
+              id="chatArea"
+              style="
+                list-style: none;
+                font-family: sans-serif;
+                padding-left: 0px;
+                margin-bottom: 30px;
+              "
+            ></ul>
+          </div>
           <form id="messageForm" class="messageForm">
             <input
               type="text"
@@ -591,10 +614,12 @@
       //script codes
 
       let userInfo = JSON.parse(localStorage.getItem("userInfo"));
-      
+
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          document.getElementById("profilePicture").setAttribute("src",user.photoURL);
+          document
+            .getElementById("profilePicture")
+            .setAttribute("src", user.photoURL);
           document.getElementById("userNameHead").style.display = "none";
           document.getElementById("profile").style.display = "block";
           document.getElementById("groupsAndChats").style.display = "block";
@@ -763,7 +788,9 @@
         if (onvalref) {
           off(onvalref);
         }
-        document.getElementById("chatArea").innerHTML = "";
+        let groupName=document.getElementById(id).innerHTML; 
+        document.getElementById("chatArea").innerHTML="";
+        document.getElementById("groupNameInChat").innerHTML = "In" + " " + groupName ;
         selectedgroup = id;
         let isDateShowed = null;
         onChildAdded(onvalref, (snapshot) => {
@@ -821,6 +848,7 @@
         document.getElementById("inputForMessage").focus();
         document.getElementById("chatArea").scrollTop =
           document.getElementById("chatArea").scrollHeight;
+        document.body.style.zoom = "100%";
       }
 
       document
