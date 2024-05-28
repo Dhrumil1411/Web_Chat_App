@@ -585,7 +585,7 @@
       // Initialize Firebase
 
       const app = initializeApp(firebaseConfig);
-      const messaging = getMessaging();
+      const messaging = getMessaging(app);
       const database = getDatabase();
       const onValueRef = query(ref(database, "groups/"));
       const provider = new GoogleAuthProvider();
@@ -630,6 +630,32 @@
           document.getElementById("userNameHead").style.display = "block";
         }
       });
+      navigator.serviceWorker
+        .register("./example/sw.js")
+        .then((registration) => {
+          messaging.useServiceWorker(registration);
+          Notification.requestPermission().then((permission) => {
+            if (permission === "granted") {
+              console.log("Notification permission granted.");
+            }
+            getToken(messaging, {
+              vapidKey:
+                "BIa5bs_CC9ONfc05out79umbxXaqJuN1jS3t4gZ7KorIGHjUecGRmvj2pviwsyADk4bDd288q6lF4NyHnK1A-6k",
+            })
+              .then((currentToken) => {
+                if (currentToken) {
+                  console.log(currentToken);
+                } else {
+                  console.log(
+                    "No registration token available. Request permission to generate one."
+                  );
+                }
+              })
+              .catch((err) => {
+                console.log("An error occurred while retrieving token. ", err);
+              });
+          });
+        });
 
       const userSignedIn = async () => {
         signInWithPopup(auth, provider)
@@ -638,35 +664,12 @@
             const token = credential.accessToken;
             const user = result.user;
             console.log(user);
-            Notification.requestPermission().then((permission) => {
-              if (permission === "granted") {
-                console.log("Notification permission granted.");
-              }
-              
-            });
           })
           .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
           });
-      };  
-
-      getToken(messaging, {
-        vapidKey:
-          "BIa5bs_CC9ONfc05out79umbxXaqJuN1jS3t4gZ7KorIGHjUecGRmvj2pviwsyADk4bDd288q6lF4NyHnK1A-6k",
-      })
-        .then((currentToken) => {
-          if (currentToken) {
-            console.log(currentToken);
-          } else {
-            console.log(
-              "No registration token available. Request permission to generate one."
-            );
-          }
-        })
-        .catch((err) => {
-          console.log("An error occurred while retrieving token. ", err);
-        });
+      };
 
       document
         .getElementById("googleLoginBtn")
