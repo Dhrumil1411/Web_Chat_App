@@ -334,6 +334,7 @@
         margin-right: 5px;
         font-weight: 800;
         font-family: arial;
+        margin-left: 5px;
       }
 
       .date {
@@ -426,10 +427,10 @@
         width: 100%;
         margin-bottom: 10px;
       }
-      .groupNameInChat{
+      .groupNameInChat {
         margin-left: auto;
         margin-right: auto;
-         padding: 3px 5px 3px 5px;
+        padding: 3px 5px 3px 5px;
         background-color: black;
         width: fit-content;
         height: fit-content;
@@ -487,7 +488,11 @@
         Close
       </button>
     </div>
-    <div id="groupsAndChats" class="groupsAndChats" style="display: none; border: 0px;">
+    <div
+      id="groupsAndChats"
+      class="groupsAndChats"
+      style="display: none; border: 0px"
+    >
       <div id="groupAddBtn">
         <button type="button" class="groupAdderBtn" id="groupAdderBtn">
           Add New Group
@@ -536,10 +541,11 @@
       <div>
         <div
           id="chatsAfterGroupSelect"
-          style="display: none; border: 0px;"
+          style="display: none; border: 0px"
           class="chatsAfterGroupSelect"
         >
-          <div class="allChats" id="allChats" ><p id="groupNameInChat" class="groupNameInChat"></p>
+          <div class="allChats" id="allChats">
+            <p id="groupNameInChat" class="groupNameInChat"></p>
             <ul
               id="chatArea"
               style="
@@ -612,7 +618,7 @@
       const auth = getAuth(app);
 
       //script codes
-
+      let isDateShowed = null;
       let userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
       onAuthStateChanged(auth, (user) => {
@@ -782,67 +788,89 @@
       let onvalref = null;
       let dateDisplayed = false;
       let todayDate = new Date().toDateString();
-
       function messages(id) {
         let onvalref = query(ref(database, "groups/" + id + "/chats/"));
         if (onvalref) {
           off(onvalref);
         }
-        let groupName=document.getElementById(id).innerHTML; 
-        document.getElementById("chatArea").innerHTML="";
-        document.getElementById("groupNameInChat").innerHTML = "In" + " " + groupName ;
+        let groupName = document.getElementById(id).innerHTML;
+        document.getElementById("chatArea").innerHTML = "";
+        document.getElementById("groupNameInChat").innerHTML =
+          "In" + " " + groupName;
         selectedgroup = id;
-        let isDateShowed = null;
-        onChildAdded(onvalref, (snapshot) => {
-          let userInfo = JSON.parse(localStorage.getItem("userInfo"));
-          let data = snapshot.val();
-          let chat = document.createElement("li");
-          let message = document.createElement("div");
-          let inChatName = document.createElement("p");
-          let chats = document.createElement("p");
-          let chatTime = document.createElement("p");
-          let profilePicture = document.createElement("img");
-          profilePicture.setAttribute("src", data.photoURL);
-          profilePicture.classList.add("inChatPFP");
-          chatTime.classList.add("time");
-          chats.classList.add("text");
-          inChatName.classList.add("inChatName");
-          if (userInfo.userName === data.userName) {
-            message.classList.add("chatsGet");
-            chat.setAttribute("style", "text-align:right;");
-            profilePicture.setAttribute("style", "float:right;");
-          } else {
-            message.classList.add("chatsSend");
-            chat.setAttribute("style", "text-align:left;");
-            profilePicture.setAttribute("style", "float:left;");
-          }
-          let name = document.createTextNode(data.userName);
-          inChatName.appendChild(name);
-          let text = document.createTextNode(data.message);
-          chats.appendChild(text);
-          let time = document.createTextNode(data.hour + ":" + data.minute);
-          chatTime.appendChild(time);
-          document.getElementById("chatArea").appendChild(profilePicture);
-          message.appendChild(inChatName);
-          message.appendChild(chats);
-          message.appendChild(chatTime);
-          chat.scrollIntoView({ behavior: "smooth" });
-          chat.appendChild(profilePicture);
-          chat.appendChild(message);
-          let date = document.createElement("p");
-          date.classList.add("date");
-          let Date = document.createTextNode(data.date);
-          date.appendChild(Date);
-          if (isDateShowed !== data.date || isDateShowed === null) {
-            document.getElementById("chatArea").appendChild(date);
-            isDateShowed = data.date;
-            console.log(isDateShowed);
-          }
-          document.getElementById("chatArea").appendChild(chat);
-          let lastChat = document.getElementById("chatArea").lastChild;
-          lastChat.scrollIntoView({ behavior: "smooth" });
-        }),
-          (document.getElementById("selectGroup").style.display = "none");
+        let lastDisplayedDateRef = ref(
+          database,
+          "groups/" + id + "/lastDisplayedDate"
+        );
+        get(lastDisplayedDateRef).then((snapshot) => {
+          let lastDisplayedDate = snapshot.val();
+          let dateDisplayed = false;
+          onChildAdded(onvalref, (snapshot) => {
+            let userInfo = JSON.parse(localStorage.getItem("userInfo"));
+            let data = snapshot.val();
+            console.log(data);
+            let chat = document.createElement("li");
+            let message = document.createElement("div");
+            let inChatName = document.createElement("p");
+            let chats = document.createElement("p");
+            let chatTime = document.createElement("p");
+            let profilePicture = document.createElement("img");
+            profilePicture.setAttribute("src", data.photoURL);
+            profilePicture.classList.add("inChatPFP");
+            chatTime.classList.add("time");
+            chats.classList.add("text");
+            inChatName.classList.add("inChatName");
+            if (userInfo.userName === data.userName) {
+              message.classList.add("chatsGet");
+              chat.setAttribute("style", "text-align:right;");
+              profilePicture.setAttribute("style", "float:right;");
+            } else {
+              message.classList.add("chatsSend");
+              chat.setAttribute("style", "text-align:left;");
+              profilePicture.setAttribute("style", "float:left;");
+            }
+            let name = document.createTextNode(data.userName);
+            inChatName.appendChild(name);
+            let text = document.createTextNode(data.message);
+            chats.appendChild(text);
+            let time = document.createTextNode(data.hour + ":" + data.minute);
+            chatTime.appendChild(time);
+            document.getElementById("chatArea").appendChild(profilePicture);
+            message.appendChild(inChatName);
+            message.appendChild(chats);
+            message.appendChild(chatTime);
+            chat.scrollIntoView({ behavior: "smooth" });
+            chat.appendChild(profilePicture);
+            chat.appendChild(message);
+            let currentDate = data.date;
+            console.log(lastDisplayedDate);
+            if (lastDisplayedDate !== currentDate) {
+              let date = document.createElement("p");
+              date.classList.add("date");
+              let dateText = document.createTextNode(currentDate);
+              date.appendChild(dateText);
+              document.getElementById("chatArea").appendChild(date);
+              lastDisplayedDate = currentDate;
+              set(lastDisplayedDateRef, currentDate);
+              console.log("in last displayed date");
+            } else if (lastDisplayedDate === currentDate) {
+              if (dateDisplayed === false) {
+                let date = document.createElement("p");
+                date.classList.add("date");
+                let dateText = document.createTextNode(currentDate);
+                date.appendChild(dateText);
+                document.getElementById("chatArea").appendChild(date);
+                lastDisplayedDate = currentDate;
+                set(lastDisplayedDateRef, currentDate);
+                dateDisplayed = true;
+              }
+            }
+            document.getElementById("chatArea").appendChild(chat);
+            let lastChat = document.getElementById("chatArea").lastChild;
+            lastChat.scrollIntoView({ behavior: "smooth" });
+          }),
+            (document.getElementById("selectGroup").style.display = "none");
+        });
         document.getElementById("chatsAfterGroupSelect").style.display =
           "block";
         document.getElementById("inputForMessage").focus();
@@ -871,7 +899,11 @@
           let time = new Date();
           let hour = time.getHours();
           let minute = time.getMinutes();
-          let date = time.toLocaleDateString();
+          let day = time.getDate();
+          let month = time.getMonth() + 1;
+          let year = time.getFullYear();
+          let date = day + "/" + month + "/" + year;
+          console.log(date);
           time.getMinutes();
           if (message !== "") {
             push(ref(database, "groups/" + selectedgroup + "/chats/"), {
@@ -881,6 +913,7 @@
               minute: minute,
               date: date,
               photoURL: profilePicture,
+              isDateShowed: date,
             });
 
             console.log("message Entered Successfully");
