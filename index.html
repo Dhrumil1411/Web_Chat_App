@@ -163,7 +163,6 @@
         cursor: pointer;
       }
 
-
       .formArea {
         padding-top: 30px;
         border-radius: 20px;
@@ -180,14 +179,15 @@
       }
 
       .groupAdderBtn {
-        height: 5%;
-        width: auto;
+        height: 42px;
+        width: 10%;
         margin: 5px;
         border: 2px solid black;
         padding: 5px;
         border-radius: 10px;
         color: black;
         font-family: Arial;
+        margin-top: 10PX ;
       }
 
       .groupAdderBtn:hover {
@@ -257,10 +257,6 @@
       }
 
       @media screen and (max-width: 992px) {
-        .groupAdderBtn {
-          width: 97%;
-        }
-
         .changeUser {
           width: 97%;
         }
@@ -288,7 +284,7 @@
 
       .groupsList {
         border: 1px solid black;
-        width: auto;
+        width: 80%;
         height: auto;
         margin-right: 5px;
         margin-left: 5px;
@@ -298,6 +294,7 @@
         padding: 5px 10px 5px 10px;
         border-radius: 10px;
         text-wrap: nowrap;
+        float: left;
       }
 
       .chatSelect {
@@ -383,8 +380,8 @@
         margin-top: 10px;
         float: right;
         position: absolute;
-        right:3%;
-        top:1%;
+        right: 3%;
+        top: 1%;
       }
 
       .profileClose:hover {
@@ -420,7 +417,7 @@
         text-align: center;
       }
 
-      .displayUserName{
+      .displayUserName {
         float: left;
         margin-left: 1%;
         font-family: arial;
@@ -481,28 +478,6 @@
       class="groupsAndChats"
       style="display: none; border: 0px"
     >
-      <div id="groupAddBtn">
-        <button type="button" class="groupAdderBtn" id="groupAdderBtn">
-          Add New Group
-        </button>
-      </div>
-      <div id="groupAdder" class="groupAdder">
-        <form id="groupForm">
-          <input
-            id="inputForGroupName"
-            class="inputForGroupName"
-            placeholder="Enter Group Name......."
-            type="text"
-            autocomplete="off"
-          />
-          <button type="button" class="groupBtn" id="groupBtn">
-            Add Group
-          </button>
-          <button type="button" class="groupCancel" id="groupCancel">
-            Cancel
-          </button>
-        </form>
-      </div>
       <div id="groupNames" style="display: block">
         <p
           style="
@@ -511,12 +486,37 @@
             font-weight: bolder;
             margin: 5px;
             margin-top: 10px;
+            margin-left: auto;
+            margin-right: 50%;
+            float: right;
           "
           class="groupHead"
         >
           CHAT GROUPS :
         </p>
         <div id="groupsList" class="groupsList"></div>
+        <div id="groupAddBtn">
+          <button type="button" class="groupAdderBtn" id="groupAdderBtn">
+            +
+          </button>
+        </div>
+        <div id="groupAdder" class="groupAdder">
+          <form id="groupForm">
+            <input
+              id="inputForGroupName"
+              class="inputForGroupName"
+              placeholder="Enter Group Name......."
+              type="text"
+              autocomplete="off"
+            />
+            <button type="button" class="groupBtn" id="groupBtn">
+              Add Group
+            </button>
+            <button type="button" class="groupCancel" id="groupCancel">
+              Cancel
+            </button>
+          </form>
+        </div>
       </div>
       <p
         style="font-family: arial; font-size: 17px; font-weight: bolder"
@@ -611,7 +611,8 @@
 
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          document.getElementById("displayUserName").innerHTML=user.displayName;
+          document.getElementById("displayUserName").innerHTML =
+            user.displayName;
           document
             .getElementById("profilePicture")
             .setAttribute("src", user.photoURL);
@@ -690,12 +691,14 @@
       document.getElementById("groupAdderBtn").addEventListener("click", () => {
         document.getElementById("groupAddBtn").style.display = "none";
         document.getElementById("groupAdder").style.display = "block";
+        document.getElementById("groupsList").style.display="none";
         document.getElementById("inputForGroupName").focus();
       });
 
       document.getElementById("groupCancel").addEventListener("click", () => {
         document.getElementById("groupAddBtn").style.display = "block";
         document.getElementById("groupAdder").style.display = "none";
+        document.getElementById("groupsList").style.display="block";
       });
 
       const dbref = ref(database);
@@ -748,6 +751,7 @@
           }
           document.getElementById("groupAdder").style.display = "none";
           document.getElementById("groupAddBtn").style.display = "block";
+          document.getElementById("groupsList").style.display="block";
         });
 
       onChildAdded(
@@ -842,6 +846,7 @@
                 set(lastDisplayedDateRef, currentDate);
                 console.log("in last displayed date");
                 notTodaysDateDisplayed = true;
+                dateDisplayed = true;
               }
             } else if (lastDisplayedDate === currentDate) {
               if (dateDisplayed === false) {
