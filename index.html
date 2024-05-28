@@ -261,7 +261,7 @@
           width: 97%;
         }
 
-        .groupsList{
+        .groupsList {
           margin-top: 10px;
         }
         .groupHead {
@@ -411,6 +411,7 @@
         margin-right: 1%;
         font-family: arial;
         font-weight: bold;
+        margin-left: 100px;
       }
 
       .selectedgroup {
@@ -565,6 +566,11 @@
         onAuthStateChanged,
       } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 
+      import {
+        getMessaging,
+        getToken,
+      } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-messaging.js";
+
       const firebaseConfig = {
         apiKey: "AIzaSyB-r_eRpmJCAhjcwZiSKUy2QZlegPUCdNE",
         authDomain: "chat-application-8e9ce.firebaseapp.com",
@@ -579,6 +585,7 @@
       // Initialize Firebase
 
       const app = initializeApp(firebaseConfig);
+      const messaging = getMessaging();
       const database = getDatabase();
       const onValueRef = query(ref(database, "groups/"));
       const provider = new GoogleAuthProvider();
@@ -631,6 +638,11 @@
             const token = credential.accessToken;
             const user = result.user;
             console.log(user);
+            Notification.requestPermission().then((permission) => {
+              if (permission === "granted") {
+                console.log("Notification permission granted.");
+              }
+            });
           })
           .catch((error) => {
             const errorCode = error.code;
@@ -638,10 +650,27 @@
           });
       };
 
+      getToken(messaging, {
+        vapidKey:
+          "BIa5bs_CC9ONfc05out79umbxXaqJuN1jS3t4gZ7KorIGHjUecGRmvj2pviwsyADk4bDd288q6lF4NyHnK1A-6k",
+      })
+        .then((currentToken) => {
+          if (currentToken) {
+            console.log(currentToken);
+          } else {
+            console.log(
+              "No registration token available. Request permission to generate one."
+            );
+          }
+        })
+        .catch((err) => {
+          console.log("An error occurred while retrieving token. ", err);
+        });
+
       document
         .getElementById("googleLoginBtn")
         .addEventListener("click", userSignedIn);
-
+        
       let click = document.getElementById("inputForMessage");
       click.addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
