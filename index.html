@@ -261,6 +261,9 @@
           width: 97%;
         }
 
+        .groupsList{
+          margin-top: 10px;
+        }
         .groupHead {
           text-align: center;
         }
@@ -284,7 +287,7 @@
 
       .groupsList {
         border: 1px solid black;
-        width: 78.5%;
+        width: 78%;
         height: auto;
         margin-right: 5px;
         margin-left: 5px;
@@ -342,7 +345,7 @@
         width: 45px;
         border-radius: 25px;
         text-align: center;
-        float: left;
+        float: right;
       }
 
       .profileBtn {
@@ -365,7 +368,7 @@
         margin-top: 10px;
         float: right;
         position: absolute;
-        right: 3%;
+        left: 3%;
         top: 1%;
       }
 
@@ -404,8 +407,8 @@
       }
 
       .displayUserName {
-        float: left;
-        margin-left: 1%;
+        float: right;
+        margin-right: 1%;
         font-family: arial;
         font-weight: bold;
       }
@@ -470,20 +473,6 @@
       style="display: none; border: 0px"
     >
       <div id="groupNames" style="display: block">
-        <p
-          style="
-            font-family: arial;
-            font-size: 17px;
-            font-weight: bolder;
-            margin: 5px;
-            margin-top: 10px;
-            margin-left: 30%;
-            margin-right: 30%;
-          "
-          class="groupHead"
-        >
-          CHAT GROUPS :
-        </p>
         <div id="groupsList" class="groupsList"></div>
         <div id="groupAddBtn">
           <button type="button" class="groupAdderBtn" id="groupAdderBtn">
@@ -862,9 +851,9 @@
           }),
             (document.getElementById("selectGroup").style.display = "none");
         });
+        document.getElementById("inputForMessage").focus();
         document.getElementById("chatsAfterGroupSelect").style.display =
           "block";
-        document.getElementById("inputForMessage").focus();
         document.getElementById("chatArea").scrollTop =
           document.getElementById("chatArea").scrollHeight;
         document.body.style.zoom = "100%";
@@ -876,7 +865,6 @@
           if (event.target.classList.contains("groups")) {
             let groupId = event.target.id;
             messages(groupId);
-            document.getElementById("inputForMessage").focus();
           }
         });
 
