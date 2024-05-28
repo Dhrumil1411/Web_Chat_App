@@ -187,7 +187,7 @@
         border-radius: 10px;
         color: black;
         font-family: Arial;
-        margin-top: 10PX ;
+        margin-top: 10px;
       }
 
       .groupAdderBtn:hover {
@@ -352,21 +352,6 @@
       .profile {
         height: 50px;
       }
-      .changeUserName {
-        height: 5%;
-        width: auto;
-        margin: 5px;
-        border: 2px solid black;
-        padding: 5px;
-        border-radius: 10px;
-        color: black;
-        font-family: Arial;
-        margin-top: 10px;
-      }
-
-      .changeUserName:hover {
-        cursor: pointer;
-      }
 
       .profileClose {
         height: auto;
@@ -404,6 +389,7 @@
         width: 100%;
         margin-bottom: 10px;
       }
+
       .groupNameInChat {
         margin-left: auto;
         margin-right: auto;
@@ -422,6 +408,11 @@
         margin-left: 1%;
         font-family: arial;
         font-weight: bold;
+      }
+
+      .selectedgroup {
+        background-color: black;
+        color: white;
       }
     </style>
   </head>
@@ -486,9 +477,8 @@
             font-weight: bolder;
             margin: 5px;
             margin-top: 10px;
-            margin-left: auto;
-            margin-right: 50%;
-            float: right;
+            margin-left: 30%;
+            margin-right: 30%;
           "
           class="groupHead"
         >
@@ -691,14 +681,14 @@
       document.getElementById("groupAdderBtn").addEventListener("click", () => {
         document.getElementById("groupAddBtn").style.display = "none";
         document.getElementById("groupAdder").style.display = "block";
-        document.getElementById("groupsList").style.display="none";
+        document.getElementById("groupsList").style.display = "none";
         document.getElementById("inputForGroupName").focus();
       });
 
       document.getElementById("groupCancel").addEventListener("click", () => {
         document.getElementById("groupAddBtn").style.display = "block";
         document.getElementById("groupAdder").style.display = "none";
-        document.getElementById("groupsList").style.display="block";
+        document.getElementById("groupsList").style.display = "block";
       });
 
       const dbref = ref(database);
@@ -751,7 +741,7 @@
           }
           document.getElementById("groupAdder").style.display = "none";
           document.getElementById("groupAddBtn").style.display = "block";
-          document.getElementById("groupsList").style.display="block";
+          document.getElementById("groupsList").style.display = "block";
         });
 
       onChildAdded(
@@ -777,6 +767,7 @@
       );
 
       let selectedgroup = null;
+      let oldSelectedgroup ;
       let onvalref = null;
       let dateDisplayed = false;
       let todayDate = new Date().toDateString();
@@ -789,7 +780,12 @@
         document.getElementById("chatArea").innerHTML = "";
         document.getElementById("groupNameInChat").innerHTML =
           "In" + " " + groupName;
+        oldSelectedgroup = selectedgroup;
         selectedgroup = id;
+        document
+          .getElementById(oldSelectedgroup)
+          .classList.remove("selectedgroup");
+        document.getElementById(selectedgroup).classList.add("selectedgroup");
         let lastDisplayedDateRef = ref(
           database,
           "groups/" + id + "/lastDisplayedDate"
