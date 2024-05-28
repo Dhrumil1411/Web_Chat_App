@@ -642,13 +642,14 @@
               if (permission === "granted") {
                 console.log("Notification permission granted.");
               }
+              
             });
           })
           .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
           });
-      };
+      };  
 
       getToken(messaging, {
         vapidKey:
@@ -670,7 +671,7 @@
       document
         .getElementById("googleLoginBtn")
         .addEventListener("click", userSignedIn);
-        
+
       let click = document.getElementById("inputForMessage");
       click.addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
