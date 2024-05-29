@@ -594,28 +594,30 @@
       const auth = getAuth(app);
 
       //script codes
-      let deviceToken;
-      getToken(messaging, {
-        vapidKey:
-          "BIa5bs_CC9ONfc05out79umbxXaqJuN1jS3t4gZ7KorIGHjUecGRmvj2pviwsyADk4bDd288q6lF4NyHnK1A-6k",
-      })
-        .then((currentToken) => {
-          if (currentToken) {
-            deviceToken = currentToken;
-          } else {
-            console.log(
-              "No registration token available. Request permission to generate one."
-            );
-          }
-        })
-        .catch((err) => {
-          console.log("An error occurred while retrieving token. ", err);
-        });
+
       let isDateShowed = null;
       let userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
       onAuthStateChanged(auth, (user) => {
         if (user) {
+          let deviceToken;
+          getToken(messaging, {
+            vapidKey:
+              "BIa5bs_CC9ONfc05out79umbxXaqJuN1jS3t4gZ7KorIGHjUecGRmvj2pviwsyADk4bDd288q6lF4NyHnK1A-6k",
+          })
+            .then((currentToken) => {
+              if (currentToken) {
+                deviceToken = currentToken;
+                console.log(deviceToken);
+              } else {
+                console.log(
+                  "No registration token available. Request permission to generate one."
+                );
+              }
+            })
+            .catch((err) => {
+              console.log("An error occurred while retrieving token. ", err);
+            });
           document.getElementById("displayUserName").innerHTML =
             user.displayName;
           document
