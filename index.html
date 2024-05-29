@@ -341,11 +341,12 @@
 
       .profileBtn {
         padding: 0px;
-        height: 45px;
-        width: 45px;
-        border-radius: 25px;
+        height: 43px;
+        width: 43px;
+        border-radius: 30px;
         text-align: center;
         float: right;
+        border: 1px solid black;
       }
 
       .profileBtn {
@@ -592,7 +593,7 @@
       const auth = getAuth(app);
 
       //script codes
-       
+
       let isDateShowed = null;
       let userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
@@ -631,33 +632,6 @@
           document.getElementById("userNameHead").style.display = "block";
         }
       });
-      
-      navigator.serviceWorker
-        .register("/firebase-messaging-sw.js")
-        .then((registration) => {
-          messaging.useServiceWorker(registration);
-          Notification.requestPermission().then((permission) => {
-            if (permission === "granted") {
-              console.log("Notification permission granted.");
-            }
-            getToken(messaging, {
-              vapidKey:
-                "BIa5bs_CC9ONfc05out79umbxXaqJuN1jS3t4gZ7KorIGHjUecGRmvj2pviwsyADk4bDd288q6lF4NyHnK1A-6k",
-            })
-              .then((currentToken) => {
-                if (currentToken) {
-                  console.log(currentToken);
-                } else {
-                  console.log(
-                    "No registration token available. Request permission to generate one."
-                  );
-                }
-              })
-              .catch((err) => {
-                console.log("An error occurred while retrieving token. ", err);
-              });
-          });
-        });
 
       const userSignedIn = async () => {
         signInWithPopup(auth, provider)
@@ -875,7 +849,7 @@
                   date.appendChild(dateText);
                   document.getElementById("chatArea").appendChild(date);
                   lastDisplayedDate = currentDate;
-                  let True=true;
+                  let True = true;
                   set(dateDisplayedref, True);
                 }
               });
@@ -961,6 +935,45 @@
           document.getElementById("changeUser").style.display = "none";
           document.getElementById("profileClose").style.display = "none";
           document.getElementById("groupsAndChats").style.display = "block";
+        });
+
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("firebase-messaging-sw.js")
+          .then(function (registration) {
+            console.log(
+              "ServiceWorker registration successful with scope: ",
+              registration.scope
+            );
+          })
+          .catch(function (err) {
+            //registration failed :(
+            console.log("ServiceWorker registration failed: ", err);
+          });
+      } else {
+        console.log("No service-worker on this browser");
+      }
+
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          console.log("Notification permission granted.");
+        }
+      });
+
+      getToken(messaging, {
+        vapidKey: "J-hB4j4EW3Bdaq5f0XGt2iFazC3mVLZ8Xl8fw_pdNj8",
+      })
+        .then((currentToken) => {
+          if (currentToken) {
+            console.log(currentToken);
+          } else {
+            console.log(
+              "No registration token available. Request permission to generate one."
+            );
+          }
+        })
+        .catch((err) => {
+          console.log("An error occurred while retrieving token. ", err);
         });
     </script>
   </body>
