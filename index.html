@@ -594,30 +594,30 @@
       const auth = getAuth(app);
 
       //script codes
-
+      const dbref = ref(database);
       let isDateShowed = null;
       let userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      let deviceToken;
+      getToken(messaging, {
+        vapidKey:
+          "BIa5bs_CC9ONfc05out79umbxXaqJuN1jS3t4gZ7KorIGHjUecGRmvj2pviwsyADk4bDd288q6lF4NyHnK1A-6k",
+      })
+        .then((currentToken) => {
+          if (currentToken) {
+            deviceToken = currentToken;
+            console.log(deviceToken);
+          } else {
+            console.log(
+              "No registration token available. Request permission to generate one."
+            );
+          }
+        })
+        .catch((err) => {
+          console.log("An error occurred while retrieving token. ", err);
+        });
 
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          let deviceToken;
-          getToken(messaging, {
-            vapidKey:
-              "BIa5bs_CC9ONfc05out79umbxXaqJuN1jS3t4gZ7KorIGHjUecGRmvj2pviwsyADk4bDd288q6lF4NyHnK1A-6k",
-          })
-            .then((currentToken) => {
-              if (currentToken) {
-                deviceToken = currentToken;
-                console.log(deviceToken);
-              } else {
-                console.log(
-                  "No registration token available. Request permission to generate one."
-                );
-              }
-            })
-            .catch((err) => {
-              console.log("An error occurred while retrieving token. ", err);
-            });
           document.getElementById("displayUserName").innerHTML =
             user.displayName;
           document
@@ -631,12 +631,12 @@
               console.log("Permission Granted");
             }
           });
-          get(child(dbref, "users/" + user.display)).then((snapshot) => {
+          get(child(dbref, "users/" + user.displayName)).then((snapshot) => {
             let obj = {
               userName: user.displayName,
               email: user.email,
               profilePicture: user.photoURL,
-              deviceToken: deviceToken,
+              deviceToken:deviceToken
             };
             localStorage.setItem("userInfo", JSON.stringify(obj));
             let data = snapshot.val();
@@ -649,7 +649,7 @@
                 userName: user.displayName,
                 email: user.email,
                 profilePicture: user.photoURL,
-                deviceToken: deviceToken,
+                deviceToken:deviceToken
               });
             }
           });
@@ -715,8 +715,6 @@
         document.getElementById("groupsList").style.display = "block";
       });
 
-      const dbref = ref(database);
-
       if (userInfo !== null) {
         get(child(dbref, "users/" + userInfo.userName)).then((snapshot) => {
           let data = snapshot.val();
@@ -737,9 +735,7 @@
             document.getElementById("userNameHead").style.display = "block";
             document.getElementById("profile").style.display = "none";
             document.getElementById("groupsAndChats").style.display = "none";
-
             userInfo = null;
-
             localStorage.setItem("userInfo", JSON.stringify(userInfo));
           })
           .catch((error) => {});
