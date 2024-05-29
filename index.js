@@ -397,11 +397,6 @@ document.getElementById("messageBtn").addEventListener("click", function (id) {
   let date = day + "/" + month + "/" + year;
   time.getMinutes();
   if (message !== "") {
-    // let NotificationOptions={
-    //     body:message,
-    //     icon:"massage.png",
-    // }
-    // new Notification(userName, NotificationOptions);
     push(ref(database, "groups/" + selectedgroup + "/chats/"), {
       message: message,
       userName: userName,
