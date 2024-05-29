@@ -411,7 +411,7 @@
         margin-right: 1%;
         font-family: arial;
         font-weight: bold;
-        margin-left: 100px;
+        margin-left: 80%;
       }
 
       .selectedgroup {
@@ -592,6 +592,7 @@
       const auth = getAuth(app);
 
       //script codes
+       
       let isDateShowed = null;
       let userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
@@ -630,8 +631,9 @@
           document.getElementById("userNameHead").style.display = "block";
         }
       });
+      
       navigator.serviceWorker
-        .register("./example/sw.js")
+        .register("/firebase-messaging-sw.js")
         .then((registration) => {
           messaging.useServiceWorker(registration);
           Notification.requestPermission().then((permission) => {
@@ -757,6 +759,7 @@
             set(ref(database, "groups/" + id + "/"), {
               groupName: document.getElementById("inputForGroupName").value,
               id: id,
+              dateDisplayed: false,
             });
             console.log("Group Entered Successfully");
             document.getElementById("inputForGroupName").value = "";
@@ -812,10 +815,9 @@
           database,
           "groups/" + id + "/lastDisplayedDate"
         );
+        let dateDisplayedref = ref(database, "groups/" + id + "/dateDisplayed");
         get(lastDisplayedDateRef).then((snapshot) => {
           let lastDisplayedDate = snapshot.val();
-          let dateDisplayed = false;
-          let notTodaysDateDisplayed = false;
           onChildAdded(onvalref, (snapshot) => {
             let userInfo = JSON.parse(localStorage.getItem("userInfo"));
             let data = snapshot.val();
@@ -854,29 +856,29 @@
             chat.appendChild(message);
             let currentDate = data.date;
             if (lastDisplayedDate !== currentDate) {
-              if (notTodaysDateDisplayed === false) {
-                let date = document.createElement("p");
-                date.classList.add("date");
-                let dateText = document.createTextNode(currentDate);
-                date.appendChild(dateText);
-                document.getElementById("chatArea").appendChild(date);
-                lastDisplayedDate = currentDate;
-                set(lastDisplayedDateRef, currentDate);
-                console.log("in last displayed date");
-                notTodaysDateDisplayed = true;
-                dateDisplayed = true;
-              }
+              let date = document.createElement("p");
+              date.classList.add("date");
+              let dateText = document.createTextNode(currentDate);
+              date.appendChild(dateText);
+              document.getElementById("chatArea").appendChild(date);
+              lastDisplayedDate = currentDate;
+              set(lastDisplayedDateRef, currentDate);
+              console.log("in last displayed date");
+              dateDisplayed = true;
             } else if (lastDisplayedDate === currentDate) {
-              if (dateDisplayed === false) {
-                let date = document.createElement("p");
-                date.classList.add("date");
-                let dateText = document.createTextNode(currentDate);
-                date.appendChild(dateText);
-                document.getElementById("chatArea").appendChild(date);
-                lastDisplayedDate = currentDate;
-                set(lastDisplayedDateRef, currentDate);
-                dateDisplayed = true;
-              }
+              get(dateDisplayedref).then((snapshot) => {
+                let dateDisplayed = snapshot.val();
+                if (dateDisplayed === false) {
+                  let date = document.createElement("p");
+                  date.classList.add("date");
+                  let dateText = document.createTextNode(currentDate);
+                  date.appendChild(dateText);
+                  document.getElementById("chatArea").appendChild(date);
+                  lastDisplayedDate = currentDate;
+                  let True=true;
+                  set(dateDisplayedref, True);
+                }
+              });
             }
             document.getElementById("chatArea").appendChild(chat);
             let lastChat = document.getElementById("chatArea").lastChild;
