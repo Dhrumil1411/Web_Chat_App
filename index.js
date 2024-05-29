@@ -83,21 +83,12 @@ getToken(messaging, {
       deviceToken = currentToken;
       console.log(deviceToken);
       get(child(dbref, "users/" + userInfo.userName)).then((snapshot) => {
-        if (snapshot.exists()) {
           set(ref(database, "users/" + userInfo.userName), {
             userName: userInfo.userName,
             email: userInfo.email,
             profilePicture: userInfo.profilePicture,
             deviceToken: deviceToken,
           });
-        } else {
-          set(ref(database, "users/" + userInfo.userName), {
-            userName: userInfo.userName,
-            email: userInfo.email,
-            profilePicture: userInfo.profilePicture,
-            deviceToken: deviceToken,
-          });
-        }
       });
     } else {
       console.log(
@@ -406,11 +397,11 @@ document.getElementById("messageBtn").addEventListener("click", function (id) {
   let date = day + "/" + month + "/" + year;
   time.getMinutes();
   if (message !== "") {
-    let NotificationOptions={
-        body:message,
-        icon:"massage.png",
-    }
-    new Notification(userName, NotificationOptions);
+    // let NotificationOptions={
+    //     body:message,
+    //     icon:"massage.png",
+    // }
+    // new Notification(userName, NotificationOptions);
     push(ref(database, "groups/" + selectedgroup + "/chats/"), {
       message: message,
       userName: userName,
