@@ -50,7 +50,6 @@ const auth = getAuth(app);
 
 //script codes
 const dbref = ref(database);
-let isDateShowed = null;
 let userInfo = JSON.parse(localStorage.getItem("userInfo"));
 let deviceToken;
 
@@ -422,6 +421,3 @@ document.getElementById("profileClose").addEventListener("click", function () {
   document.getElementById("profileClose").style.display = "none";
   document.getElementById("groupsAndChats").style.display = "block";
 });
-onMessage(function(payload){
-  console.log('onMessage', payload);
-})
