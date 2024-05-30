@@ -42,7 +42,7 @@ const firebaseConfig = {
 // Initialize Firebase
 
 const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
+const messaging = getMessaging();
 const database = getDatabase();
 const onValueRef = query(ref(database, "groups/"));
 const provider = new GoogleAuthProvider();
@@ -83,12 +83,12 @@ getToken(messaging, {
       deviceToken = currentToken;
       console.log(deviceToken);
       get(child(dbref, "users/" + userInfo.userName)).then((snapshot) => {
-          set(ref(database, "users/" + userInfo.userName), {
-            userName: userInfo.userName,
-            email: userInfo.email,
-            profilePicture: userInfo.profilePicture,
-            deviceToken: deviceToken,
-          });
+        set(ref(database, "users/" + userInfo.userName), {
+          userName: userInfo.userName,
+          email: userInfo.email,
+          profilePicture: userInfo.profilePicture,
+          deviceToken: deviceToken,
+        });
       });
     } else {
       console.log(
@@ -269,7 +269,6 @@ let selectedgroup = null;
 let oldSelectedgroup;
 let onvalref = null;
 let dateDisplayed = false;
-let todayDate = new Date().toDateString();
 function messages(id) {
   let onvalref = query(ref(database, "groups/" + id + "/chats/"));
   if (onvalref) {
@@ -357,7 +356,7 @@ function messages(id) {
     }),
       (document.getElementById("selectGroup").style.display = "none");
   });
-  document.getElementById("inputForMessage").focus();
+  ;
   document.getElementById("chatsAfterGroupSelect").style.display = "block";
   document.getElementById("chatArea").scrollTop =
     document.getElementById("chatArea").scrollHeight;
@@ -406,9 +405,14 @@ document.getElementById("messageBtn").addEventListener("click", function (id) {
       photoURL: profilePicture,
       isDateShowed: date,
     });
+    let notification= new Notification (userName, { 
+      title:selectedgroup,
+      body:message,
+      icon:"massage.png",
+    })
     console.log("message Entered Successfully");
     document.getElementById("inputForMessage").value = "";
-    document.getElementById("inputForMessage").focus();
+
   }
 });
 
@@ -423,3 +427,6 @@ document.getElementById("profileClose").addEventListener("click", function () {
   document.getElementById("profileClose").style.display = "none";
   document.getElementById("groupsAndChats").style.display = "block";
 });
+onMessage(function(payload){
+  console.log('onMessage', payload);
+})
