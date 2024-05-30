@@ -497,7 +497,7 @@
       </div>
     </div>
 
-    <script type="module" src="firebase-messaging-sw.js"></script>
+    <script src="firebase-messaging-sw.js" type="module"></script>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
 
@@ -570,7 +570,7 @@
 
       getToken(messaging, {
         vapidKey:
-          'BIa5bs_CC9ONfc05out79umbxXaqJuN1jS3t4gZ7KorIGHjUecGRmvj2pviwsyADk4bDd288q6lF4NyHnK1A-6k'
+          "BIa5bs_CC9ONfc05out79umbxXaqJuN1jS3t4gZ7KorIGHjUecGRmvj2pviwsyADk4bDd288q6lF4NyHnK1A-6k",
       })
         .then((currentToken) => {
           if (currentToken) {
