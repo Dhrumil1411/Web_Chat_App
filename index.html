@@ -497,7 +497,7 @@
       </div>
     </div>
 
-    <script src="firebase-messaging-sw.js" type="module"></script>
+    <script type="module" src="firebase-messaging-sw.js"></script>
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
 
@@ -524,6 +524,7 @@
       import {
         getMessaging,
         getToken,
+        onMessage,
       } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-messaging.js";
 
       const firebaseConfig = {
@@ -929,6 +930,11 @@
           document.getElementById("profileClose").style.display = "none";
           document.getElementById("groupsAndChats").style.display = "block";
         });
+
+      onMessage((payload) => {
+        console.log("Message received. ", payload);
+        const { title } = payload.notification;
+      });
     </script>
   </body>
 </html>
