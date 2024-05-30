@@ -555,6 +555,29 @@
         navigator.serviceWorker
           .register("./firebase-messaging-sw.js")
           .then(function (registration) {
+            getToken(messaging, {
+              vapidKey:
+                "BIa5bs_CC9ONfc05out79umbxXaqJuN1jS3t4gZ7KorIGHjUecGRmvj2pviwsyADk4bDd288q6lF4NyHnK1A-6k",
+            })
+              .then((currentToken) => {
+                if (currentToken) {
+                  deviceToken = currentToken;
+                  console.log(deviceToken);
+                  set(ref(database, "users/" + userInfo.userName), {
+                    userName: userInfo.userName,
+                    email: userInfo.email,
+                    profilePicture: userInfo.profilePicture,
+                    deviceToken: deviceToken,
+                  });
+                } else {
+                  console.log(
+                    "No registration token available. Request permission to generate one."
+                  );
+                }
+              })
+              .catch((err) => {
+                console.log("An error occurred while retrieving token. ", err);
+              });
             console.log(
               "ServiceWorker registration successful with scope: ",
               registration.scope
@@ -567,30 +590,6 @@
       } else {
         console.log("No service-worker on this browser");
       }
-
-      getToken(messaging, {
-        vapidKey:
-          "BIa5bs_CC9ONfc05out79umbxXaqJuN1jS3t4gZ7KorIGHjUecGRmvj2pviwsyADk4bDd288q6lF4NyHnK1A-6k",
-      })
-        .then((currentToken) => {
-          if (currentToken) {
-            deviceToken = currentToken;
-            console.log(deviceToken);
-            set(ref(database, "users/" + userInfo.userName), {
-              userName: userInfo.userName,
-              email: userInfo.email,
-              profilePicture: userInfo.profilePicture,
-              deviceToken: deviceToken,
-            });
-          } else {
-            console.log(
-              "No registration token available. Request permission to generate one."
-            );
-          }
-        })
-        .catch((err) => {
-          console.log("An error occurred while retrieving token. ", err);
-        });
 
       onAuthStateChanged(auth, (user) => {
         if (user) {
