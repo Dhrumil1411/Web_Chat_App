@@ -59,7 +59,7 @@ onMessage(messaging, (payload) => {
 });
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
-    .register("./firebase-messaging-sw.js")
+    .register("/Web_Chat_App/firebase-messaging-sw.js")
     .then(function (registration) {
       console.log(
         "ServiceWorker registration successful with scope: ",
@@ -405,11 +405,6 @@ document.getElementById("messageBtn").addEventListener("click", function (id) {
       photoURL: profilePicture,
       isDateShowed: date,
     });
-    let notification= new Notification (userName, { 
-      title:selectedgroup,
-      body:message,
-      icon:"massage.png",
-    })
     console.log("message Entered Successfully");
     document.getElementById("inputForMessage").value = "";
 
