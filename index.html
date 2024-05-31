@@ -5,6 +5,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="massage.png" />
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"
+    ></script>
+    <script type="text/javascript">
+      (function () {
+        emailjs.init({
+          publicKey: "1rlqVtKsZXJfHH535",
+        });
+      })();
+    </script>
     <style>
       .inputForMessage {
         height: 5%;
@@ -499,6 +510,12 @@
 
     <script type="module" src="firebase-messaging-sw.js"></script>
     <script type="module">
+      // const {createHash} = require('crypto');
+
+      // function hash(string){
+      //   return createHash('sha256').update(string).digest('hex');
+      // }
+
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
 
       import {
@@ -521,11 +538,6 @@
         onAuthStateChanged,
       } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 
-      import {
-        getMessaging,
-        getToken,
-        onMessage,
-      } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-messaging.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyB-r_eRpmJCAhjcwZiSKUy2QZlegPUCdNE",
@@ -541,7 +553,6 @@
       // Initialize Firebase
 
       const app = initializeApp(firebaseConfig);
-      const messaging = getMessaging(app);
       const database = getDatabase();
       const onValueRef = query(ref(database, "groups/"));
       const provider = new GoogleAuthProvider();
@@ -550,48 +561,6 @@
       //script codes
       const dbref = ref(database);
       let userInfo = JSON.parse(localStorage.getItem("userInfo"));
-      let deviceToken;
-
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker
-          .register("./firebase-messaging-sw.js")
-          .then(function (registration) {
-            console.log(
-              "ServiceWorker registration successful with scope: ",
-              registration.scope
-            );
-          })
-          .catch(function (err) {
-            //registration failed :(
-            console.log("ServiceWorker registration failed: ", err);
-          });
-      } else {
-        console.log("No service-worker on this browser");
-      }
-
-      getToken(messaging, {
-        vapidKey:
-          "BIa5bs_CC9ONfc05out79umbxXaqJuN1jS3t4gZ7KorIGHjUecGRmvj2pviwsyADk4bDd288q6lF4NyHnK1A-6k",
-      })
-        .then((currentToken) => {
-          if (currentToken) {
-            deviceToken = currentToken;
-            console.log(deviceToken);
-            set(ref(database, "users/" + userInfo.userName), {
-              userName: userInfo.userName,
-              email: userInfo.email,
-              profilePicture: userInfo.profilePicture,
-              deviceToken: deviceToken,
-            });
-          } else {
-            console.log(
-              "No registration token available. Request permission to generate one."
-            );
-          }
-        })
-        .catch((err) => {
-          console.log("An error occurred while retrieving token. ", err);
-        });
 
       onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -603,11 +572,6 @@
           document.getElementById("userNameHead").style.display = "none";
           document.getElementById("profile").style.display = "block";
           document.getElementById("groupsAndChats").style.display = "block";
-          Notification.requestPermission().then((permission) => {
-            if (permission === "granted") {
-              console.log("Permission Granted");
-            }
-          });
 
           get(child(dbref, "users/" + user.displayName)).then((snapshot) => {
             let obj = {
@@ -617,6 +581,7 @@
             };
             localStorage.setItem("userInfo", JSON.stringify(obj));
             let data = snapshot.val();
+            console.log(snapshot.val());
             if (snapshot.exists()) {
               document.getElementById("userNameHead").style.display = "none";
               document.getElementById("profile").style.display = "block";
@@ -751,7 +716,6 @@
           groupName.setAttribute("id", data.id);
           groupName.addEventListener("click", () => {
             messages(data.id);
-            document.getElementById("inputForMessage").focus();
           });
           groupName.setAttribute("class", "groups");
           groupName.innerHTML = group;
@@ -805,7 +769,7 @@
             inChatName.classList.add("inChatName");
             if (userInfo.userName === data.userName) {
               message.classList.add("chatsGet");
-              chat.setAttribute("style", "text-align:right;");
+              chat.setAttribute("style", "text-align:right; ");
               profilePicture.setAttribute("style", "float:right;");
             } else {
               message.classList.add("chatsSend");
@@ -876,9 +840,11 @@
       document
         .getElementById("messageBtn")
         .addEventListener("click", function (id) {
-          let message = document.getElementById("inputForMessage").value;
-          let userInfo = JSON.parse(localStorage.getItem("userInfo"));
           let userName = userInfo.userName;
+          // get(ref(database,"users/")).then((snapshot)=>{
+          //   console.log(snapshot.val());
+          // })
+          let message = document.getElementById("inputForMessage").value;
           let profilePicture = userInfo.profilePicture;
           let time = new Date();
           let hour = time.getHours();
@@ -901,8 +867,9 @@
           let date = day + "/" + month + "/" + year;
           time.getMinutes();
           if (message !== "") {
+            // sendMail();
             push(ref(database, "groups/" + selectedgroup + "/chats/"), {
-              message: message,
+              message: message, 
               userName: userName,
               hour: hour,
               minute: minute,
@@ -913,6 +880,15 @@
             console.log("message Entered Successfully");
             document.getElementById("inputForMessage").value = "";
           }
+          // function sendMail(){
+          //   let params={
+          //     groupName:document.getElementById(selectedgroup).innerHTML,
+          //     userName:userName,
+          //     message:message,
+          //     email:userInfo.email
+          //   }
+          //   emailjs.send("service_2ki8m69","template_42932jm", params).then(console.log("email sent"));
+          // }
         });
 
       document
@@ -930,11 +906,6 @@
           document.getElementById("profileClose").style.display = "none";
           document.getElementById("groupsAndChats").style.display = "block";
         });
-
-      onMessage((payload) => {
-        console.log("Message received. ", payload);
-        const { title } = payload.notification;
-      });
     </script>
   </body>
 </html>
