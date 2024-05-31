@@ -509,12 +509,6 @@
     </div>
 
     <script type="module">
-      // const {createHash} = require('crypto');
-
-      // function hash(string){
-      //   return createHash('sha256').update(string).digest('hex');
-      // }
-
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
 
       import {
@@ -536,7 +530,6 @@
         signOut,
         onAuthStateChanged,
       } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
-
 
       const firebaseConfig = {
         apiKey: "AIzaSyB-r_eRpmJCAhjcwZiSKUy2QZlegPUCdNE",
@@ -572,11 +565,12 @@
           document.getElementById("profile").style.display = "block";
           document.getElementById("groupsAndChats").style.display = "block";
 
-          get(child(dbref, "users/" + user.displayName)).then((snapshot) => {
+          get(child(dbref, "users/" + user.uid)).then((snapshot) => {
             let obj = {
               userName: user.displayName,
               email: user.email,
               profilePicture: user.photoURL,
+              uid:user.uid,
             };
             localStorage.setItem("userInfo", JSON.stringify(obj));
             let data = snapshot.val();
@@ -586,7 +580,7 @@
               document.getElementById("profile").style.display = "block";
               document.getElementById("groupsAndChats").style.display = "block";
             } else {
-              set(ref(database, "users/" + user.displayName), {
+              set(ref(database, "users/" + user.uid), {
                 userName: user.displayName,
                 email: user.email,
                 profilePicture: user.photoURL,
@@ -656,15 +650,12 @@
       });
 
       if (userInfo !== null) {
-        get(child(dbref, "users/" + userInfo.userName)).then((snapshot) => {
-          let data = snapshot.val();
-          if (snapshot.exists()) {
+         
             document.getElementById("userNameHead").style.display = "none";
             document.getElementById("profile").style.display = "block";
             document.getElementById("groupsAndChats").style.display = "block";
           }
-        });
-      } else {
+       else {
         document.getElementById("userNameHead").style.display = "block";
       }
 
@@ -840,9 +831,10 @@
         .getElementById("messageBtn")
         .addEventListener("click", function (id) {
           let userName = userInfo.userName;
-          // get(ref(database,"users/")).then((snapshot)=>{
-          //   console.log(snapshot.val());
-          // })
+          get(ref(database,"users/" + userInfo.uid)).then((snapshot)=>{
+            let data=snapshot.val();
+            console.log(data);
+          })
           let message = document.getElementById("inputForMessage").value;
           let profilePicture = userInfo.profilePicture;
           let time = new Date();
@@ -868,7 +860,7 @@
           if (message !== "") {
             // sendMail();
             push(ref(database, "groups/" + selectedgroup + "/chats/"), {
-              message: message, 
+              message: message,
               userName: userName,
               hour: hour,
               minute: minute,
