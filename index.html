@@ -238,7 +238,7 @@
       }
 
       .chatsAfterGroupSelect {
-        margin: 10px;
+        margin: 25px;
       }
 
       @media screen and (max-width: 992px) {
@@ -644,13 +644,6 @@
         }
       });
 
-      let click3 = document.getElementById("inputToChangeUserName");
-      click2.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          document.getElementById("changeUserNameBtn").click();
-        }
-      });
 
       document.getElementById("groupAdder").style.display = "none";
       document.getElementById("groupAdderBtn").addEventListener("click", () => {
@@ -705,10 +698,11 @@
             });
             console.log("Group Entered Successfully");
             document.getElementById("inputForGroupName").value = "";
+            document.getElementById(id).click();
           }
           document.getElementById("groupAdder").style.display = "none";
           document.getElementById("groupAddBtn").style.display = "block";
-          document.getElementById("groupsList").style.display = "block";
+          document.getElementById("groupsList").style.display = "block";  
         });
 
       onChildAdded(
@@ -741,7 +735,6 @@
         if (onvalref) {
           off(onvalref);
         }
-        let groupName = document.getElementById(id).innerHTML;
         document.getElementById("chatArea").innerHTML = "";
         oldSelectedgroup = selectedgroup;
         selectedgroup = id;
