@@ -196,6 +196,7 @@
         color: black;
         font-family: Arial;
         margin-top: 20px;
+        width: 97%;
       }
 
       .changeUser:hover {
@@ -379,7 +380,7 @@
         margin-right: 1%;
         font-family: arial;
         font-weight: bold;
-        margin-left: 80%;
+        margin-left: 50%;
       }
 
       .selectedgroup {
@@ -570,7 +571,7 @@
               userName: user.displayName,
               email: user.email,
               profilePicture: user.photoURL,
-              uid:user.uid,
+              uid: user.uid,
             };
             localStorage.setItem("userInfo", JSON.stringify(obj));
             let data = snapshot.val();
@@ -650,12 +651,10 @@
       });
 
       if (userInfo !== null) {
-         
-            document.getElementById("userNameHead").style.display = "none";
-            document.getElementById("profile").style.display = "block";
-            document.getElementById("groupsAndChats").style.display = "block";
-          }
-       else {
+        document.getElementById("userNameHead").style.display = "none";
+        document.getElementById("profile").style.display = "block";
+        document.getElementById("groupsAndChats").style.display = "block";
+      } else {
         document.getElementById("userNameHead").style.display = "block";
       }
 
@@ -831,10 +830,7 @@
         .getElementById("messageBtn")
         .addEventListener("click", function (id) {
           let userName = userInfo.userName;
-          get(ref(database,"users/" + userInfo.uid)).then((snapshot)=>{
-            let data=snapshot.val();
-            console.log(data);
-          })
+
           let message = document.getElementById("inputForMessage").value;
           let profilePicture = userInfo.profilePicture;
           let time = new Date();
@@ -858,7 +854,19 @@
           let date = day + "/" + month + "/" + year;
           time.getMinutes();
           if (message !== "") {
-            // sendMail();
+            // get(ref(database, "users/")).then((snapshot) => {
+            //   let arr = snapshot.val();
+            //   let uid = Object.keys(arr);
+            //   console.log(uid);
+            //   for (let i = 0; i < uid.length; i++) {
+            //     get(ref(database, "users/" + uid[i])).then((snapshot) => {
+            //       if (uid[i] !== userInfo.uid) {
+            //         sendMail(snapshot.val().email);
+            //       }
+            //     });
+            //   }
+            // });
+
             push(ref(database, "groups/" + selectedgroup + "/chats/"), {
               message: message,
               userName: userName,
@@ -871,14 +879,16 @@
             console.log("message Entered Successfully");
             document.getElementById("inputForMessage").value = "";
           }
-          // function sendMail(){
-          //   let params={
-          //     groupName:document.getElementById(selectedgroup).innerHTML,
-          //     userName:userName,
-          //     message:message,
-          //     email:userInfo.email
-          //   }
-          //   emailjs.send("service_2ki8m69","template_42932jm", params).then(console.log("email sent"));
+          // function sendMail(email) {
+          //   let params = {
+          //     groupName: document.getElementById(selectedgroup).innerHTML,
+          //     userName: userName,
+          //     message: message,
+          //     email: email,
+          //   };
+          //   emailjs
+          //     .send("service_2ki8m69", "template_42932jm", params)
+          //     .then(console.log("email sent"));
           // }
         });
 
