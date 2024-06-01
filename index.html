@@ -240,6 +240,7 @@
 
       .chatsAfterGroupSelect {
         margin-top: 25px;
+        margin-bottom: 10px;
       }
 
       @media screen and (max-width: 992px) {
@@ -652,6 +653,7 @@
         document.getElementById("groupAddBtn").style.display = "none";
         document.getElementById("groupAdder").style.display = "block";
         document.getElementById("groupsList").style.display = "none";
+        document.getElementById("chatsAfterGroupSelect").style.display="none";
         document.getElementById("inputForGroupName").focus();
       });
 
@@ -659,6 +661,7 @@
         document.getElementById("groupAddBtn").style.display = "block";
         document.getElementById("groupAdder").style.display = "none";
         document.getElementById("groupsList").style.display = "block";
+        document.getElementById("chatsAfterGroupSelect").style.display="block";
       });
 
       if (userInfo !== null) {
