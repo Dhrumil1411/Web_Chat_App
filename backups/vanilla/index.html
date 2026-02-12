@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chat App</title>
+  <link rel="icon" type="image/png" href="assets/logo.png">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div id="app">
+    <!-- Login Screen -->
+    <div id="login-screen">
+      <div class="login-card">
+        <div class="login-logo">
+          <i class="fas fa-comments"></i>
+        </div>
+        <h1>Welcome</h1>
+        <p>Enter your username to join</p>
+        <form id="username-login-form">
+          <input type="text" id="login-username" class="login-input" placeholder="Username" required autocomplete="off">
+          <button type="submit" class="btn-login">
+            Get Started
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Chat Interface -->
+    <div id="chat-interface">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div id="user-profile-btn" class="user-profile-preview" title="My Profile">
+            <img id="user-avatar" src="" alt="Profile" class="user-avatar">
+            <div class="user-info">
+              <span id="user-name" class="user-name">Loading...</span>
+              <span class="user-status">Online</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-actions">
+          <span class="section-title">Groups</span>
+          <div class="action-buttons">
+            <button id="invites-btn" class="btn-icon-round" title="Invites"
+              style="background-color: transparent; color: var(--text-secondary); border: 1px solid var(--border-light);">
+              <i class="fas fa-envelope"></i>
+              <span id="invite-badge" class="badge" style="display: none;">0</span>
+            </button>
+            <button id="add-group-btn" class="btn-icon-round" title="New Group">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Groups List -->
+        <div id="groups-list" class="groups-list">
+          <!-- Dynamic Groups -->
+        </div>
+
+        <div class="logout-container">
+          <button id="logout-btn" class="btn-logout">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Chat Area -->
+      <main class="chat-area">
+        <!-- Empty State -->
+        <div id="no-chat-selected" class="empty-state">
+          <div class="empty-illustration">
+            <i class="fas fa-paper-plane"></i>
+          </div>
+          <h2>Start a Conversation</h2>
+          <p>Select a group from the sidebar to begin chatting.</p>
+        </div>
+
+        <!-- Active Chat -->
+        <div id="active-chat" style="display: none;">
+          <header class="chat-header">
+            <button id="back-btn" class="btn-back mobile-only">
+              <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="chat-header-info">
+              <h2 id="current-group-name">Group Name</h2>
+              <p>Active Now</p>
+            </div>
+            <button id="add-member-btn" class="btn-icon-round"
+              style="margin-left: auto; width: 32px; height: 32px; font-size: 0.9rem;" title="Add Member">
+              <i class="fas fa-plus"></i>
+            </button>
+          </header>
+
+          <div id="messages-container" class="messages-container">
+            <!-- Messages Injected Here -->
+          </div>
+
+          <div class="message-input-area">
+            <form id="message-form">
+              <input type="text" id="message-input" class="input-field" placeholder="Type a message..."
+                autocomplete="off">
+              <button type="submit" class="btn-send">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Create Group Modal -->
+    <div id="add-group-modal" class="modal">
+      <div class="modal-content">
+        <h3>Create Private Group</h3>
+        <input type="text" id="new-group-name" class="modal-input" placeholder="Enter group name">
+
+        <div class="user-selection">
+          <h4>Select Members to Invite</h4>
+          <div id="user-list" class="user-list">
+            <!-- User list will be populated here -->
+            <p class="loading-text">Loading users...</p>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button id="cancel-group-btn" class="btn btn-secondary">Cancel</button>
+          <button id="confirm-group-btn" class="btn btn-primary">Create & Invite</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div id="add-member-modal" class="modal">
+      <div class="modal-content">
+        <h3>Add Members</h3>
+        <p style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">Invite users to <span
+            id="add-member-group-name" style="font-weight: bold; color: var(--text-main);"></span></p>
+
+        <div class="user-selection">
+          <div id="add-member-user-list" class="user-list">
+            <!-- User list will be populated here -->
+            <p class="loading-text">Loading online users...</p>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button id="cancel-add-member-btn" class="btn btn-secondary">Cancel</button>
+          <button id="confirm-add-member-btn" class="btn btn-primary">Send Invites</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invites Modal -->
+    <div id="invites-modal" class="modal">
+      <div class="modal-content">
+        <h3>Group Invitations</h3>
+        <div id="invites-list" class="invites-list">
+          <p class="empty-text">No pending invitations.</p>
+        </div>
+        <div class="modal-actions">
+          <button id="close-invites-btn" class="btn btn-secondary">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
