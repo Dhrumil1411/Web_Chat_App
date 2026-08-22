@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, ArrowLeft, Plus } from 'lucide-react';
-import FaultyTerminal from './FaultyTerminal';
+import { Send, ArrowLeft, Plus, Pencil, Trash2 } from 'lucide-react';
 
 
 export default function ChatWindow({
@@ -10,10 +9,13 @@ export default function ChatWindow({
     currentUser,
     onSendMessage,
     onBack,
-    onAddMember
+    onAddMember,
+    onEditGroup,
+    onDeleteGroup
 }) {
     const [inputText, setInputText] = useState('');
     const messagesEndRef = useRef(null);
+    const lastSendRef = useRef(0);
 
     const scrollToBottom = (behavior) => {
         messagesEndRef.current?.scrollIntoView({ behavior: behavior || "smooth" });
@@ -23,10 +25,25 @@ export default function ChatWindow({
         scrollToBottom();
     }, [messages]);
 
+    const getSafeAvatar = (url, name) => {
+        if (url && (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:image/'))) {
+            return url;
+        }
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}`;
+    };
+
     const handleSend = (e) => {
         e.preventDefault();
-        if (!inputText.trim()) return;
-        onSendMessage(inputText.trim());
+        const trimmed = inputText.trim();
+        if (!trimmed) return;
+
+        const now = Date.now();
+        if (now - lastSendRef.current < 400) {
+            return; // Rate limit: ignore rapid submissions < 400ms
+        }
+        lastSendRef.current = now;
+
+        onSendMessage(trimmed);
         setInputText('');
     };
 
@@ -42,17 +59,10 @@ export default function ChatWindow({
         );
     }
 
+    const isCreator = activeGroup.createdBy === currentUser.uid;
+
     return (
         <main className="chat-area active-chat">
-            <div className="chat-background-faulty">
-                <FaultyTerminal
-                    tint="#5227FF"
-                    frameRate={10}
-                    mouseReact={false}
-                    scanlineIntensity={0.2}
-                    brightness={0.8}
-                />
-            </div>
             <header className="chat-header">
                 <div className="chat-header-left" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <button className="btn-back mobile-only" onClick={onBack}>
@@ -64,19 +74,31 @@ export default function ChatWindow({
                     </div>
                 </div>
                 {activeGroup.type === 'private' && (
-                    <button className="btn-icon-round" style={{ marginLeft: 'auto' }} title="Add Member" onClick={onAddMember}>
-                        <Plus size={16} />
-                    </button>
+                    <div className="chat-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
+                        {isCreator && (
+                            <>
+                                <button className="btn-icon-round btn-icon-subtle" title="Edit Group Name" onClick={onEditGroup}>
+                                    <Pencil size={14} />
+                                </button>
+                                <button className="btn-icon-round btn-icon-danger" title="Delete Group" onClick={onDeleteGroup}>
+                                    <Trash2 size={14} />
+                                </button>
+                            </>
+                        )}
+                        <button className="btn-icon-round" title="Add Member" onClick={onAddMember}>
+                            <Plus size={16} />
+                        </button>
+                    </div>
                 )}
             </header>
 
-            <div className="messages-container" style={{ position: 'relative', zIndex: 1 }}>
-                <div style={{ position: 'relative', zIndex: 1, minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+            <div className="messages-container">
+                <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
                     <AnimatePresence initial={false}>
                         {messages.map((msg) => {
                             const isMe = msg.uid === currentUser.uid;
-                            // Ensure unique keys. If msg.id missing, use timestamp + uid
                             const key = msg.id || `${msg.timestamp}-${msg.uid}`;
+                            const avatar = getSafeAvatar(msg.photoURL, msg.userName);
 
                             return (
                                 <motion.div
@@ -88,7 +110,7 @@ export default function ChatWindow({
                                     transition={{ duration: 0.3, type: "spring", stiffness: 100 }}
                                     layout
                                 >
-                                    {!isMe && <img src={msg.photoURL} className="msg-avatar" alt={msg.userName} />}
+                                    {!isMe && <img src={avatar} className="msg-avatar" alt={msg.userName || 'User'} />}
                                     <div className="msg-content">
                                         {!isMe && <div className="msg-username">{msg.userName}</div>}
                                         <div className="msg-bubble">
@@ -106,14 +128,15 @@ export default function ChatWindow({
                 </div>
             </div>
 
-            <div className="message-input-area" style={{ position: 'relative', zIndex: 2 }}>
+            <div className="message-input-area">
                 <form onSubmit={handleSend}>
                     <input
                         type="text"
                         className="input-field"
-                        placeholder="Type a message..."
+                        placeholder="Type a message (max 1000 chars)..."
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
+                        maxLength={1000}
                     />
                     <motion.button
                         type="submit"

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, Loader2 } from 'lucide-react';
-import { database, ref, get, push, set } from '../firebase';
+import { database, ref, get, push, set, update, remove } from '../firebase';
 
 const Overlay = ({ children, onClose }) => (
     <motion.div
@@ -62,8 +62,13 @@ export function CreateGroupModal({ isOpen, onClose, currentUser, showToast }) {
     };
 
     const handleCreate = async () => {
-        if (!groupName.trim()) {
+        const trimmedName = groupName.trim();
+        if (!trimmedName) {
             showToast('Group name is required', 'error');
+            return;
+        }
+        if (trimmedName.length > 50) {
+            showToast('Group name must be 50 characters or less', 'error');
             return;
         }
 
@@ -74,7 +79,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUser, showToast }) {
             const groupId = newGroupRef.key;
 
             await set(newGroupRef, {
-                groupName: groupName.trim(),
+                groupName: trimmedName,
                 type: 'private',
                 createdAt: Date.now(),
                 createdBy: currentUser.uid,
@@ -85,7 +90,7 @@ export function CreateGroupModal({ isOpen, onClose, currentUser, showToast }) {
                 const inviteRef = push(ref(database, `invites/${uid}`));
                 return set(inviteRef, {
                     groupId,
-                    groupName: groupName.trim(),
+                    groupName: trimmedName,
                     inviterName: currentUser.displayName,
                     timestamp: Date.now()
                 });
@@ -109,9 +114,10 @@ export function CreateGroupModal({ isOpen, onClose, currentUser, showToast }) {
             <h3>Create Private Group</h3>
             <input
                 className="modal-input"
-                placeholder="Enter group name"
+                placeholder="Enter group name (max 50 chars)"
                 value={groupName}
                 onChange={e => setGroupName(e.target.value)}
+                maxLength={50}
             />
 
             <div className="user-selection">
@@ -307,6 +313,121 @@ export function InvitesModal({ isOpen, onClose, invites, currentUser, showToast 
             </div>
             <div className="modal-actions">
                 <button className="btn btn-secondary" onClick={onClose}>Close</button>
+            </div>
+        </Overlay>
+    );
+}
+
+export function EditGroupModal({ isOpen, onClose, currentGroup, currentUser, showToast }) {
+    const [newName, setNewName] = useState('');
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        if (isOpen && currentGroup) {
+            setNewName(currentGroup.groupName || currentGroup.name || '');
+        }
+    }, [isOpen, currentGroup]);
+
+    const handleSave = async () => {
+        const trimmedName = newName.trim();
+        if (!trimmedName) {
+            showToast('Group name cannot be empty', 'error');
+            return;
+        }
+        if (trimmedName.length > 50) {
+            showToast('Group name must be 50 characters or less', 'error');
+            return;
+        }
+        if (currentGroup?.createdBy !== currentUser?.uid) {
+            showToast('Only the group creator can edit group details', 'error');
+            return;
+        }
+        if (trimmedName === (currentGroup.groupName || currentGroup.name)) {
+            onClose();
+            return;
+        }
+
+        setSaving(true);
+        try {
+            await update(ref(database, `groups/${currentGroup.id}`), {
+                groupName: trimmedName
+            });
+            showToast('Group name updated!', 'success');
+            onClose();
+        } catch (err) {
+            console.error(err);
+            showToast('Failed to update group name', 'error');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <Overlay onClose={onClose}>
+            <h3>Edit Group Name</h3>
+            <input
+                className="modal-input"
+                placeholder="Enter new group name (max 50 chars)"
+                value={newName}
+                onChange={e => setNewName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSave()}
+                maxLength={50}
+                autoFocus
+            />
+            <div className="modal-actions">
+                <button className="btn btn-secondary" onClick={onClose} disabled={saving}>Cancel</button>
+                <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+                    {saving ? 'Saving...' : 'Save'}
+                </button>
+            </div>
+        </Overlay>
+    );
+}
+
+export function DeleteGroupModal({ isOpen, onClose, currentGroup, currentUser, showToast, onGroupDeleted }) {
+    const [deleting, setDeleting] = useState(false);
+
+    const handleDelete = async () => {
+        if (!currentGroup || currentGroup.createdBy !== currentUser?.uid) {
+            showToast('Only the group creator can delete this group', 'error');
+            return;
+        }
+
+        setDeleting(true);
+        try {
+            // Delete the group data
+            await remove(ref(database, `groups/${currentGroup.id}`));
+            // Delete all messages for this group
+            await remove(ref(database, `messages/${currentGroup.id}`));
+            showToast('Group deleted successfully', 'success');
+            onGroupDeleted();
+            onClose();
+        } catch (err) {
+            console.error(err);
+            showToast('Failed to delete group', 'error');
+        } finally {
+            setDeleting(false);
+        }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <Overlay onClose={onClose}>
+            <h3>Delete Group</h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
+                Are you sure you want to delete <strong>{currentGroup?.groupName || currentGroup?.name}</strong>?
+            </p>
+            <p style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+                This action cannot be undone. All messages will be permanently deleted.
+            </p>
+            <div className="modal-actions">
+                <button className="btn btn-secondary" onClick={onClose} disabled={deleting}>Cancel</button>
+                <button className="btn btn-danger" onClick={handleDelete} disabled={deleting}>
+                    {deleting ? 'Deleting...' : 'Delete Group'}
+                </button>
             </div>
         </Overlay>
     );

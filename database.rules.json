@@ -1,0 +1,31 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "users": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "groups": {
+      ".read": "auth != null",
+      "$groupId": {
+        ".read": "auth != null && (data.child('type').val() === 'public' || data.child('members/' + auth.uid).exists())",
+        ".write": "auth != null && (!data.exists() ? true : (data.child('type').val() === 'public' || data.child('members/' + auth.uid).exists() || data.child('createdBy').val() === auth.uid))"
+      }
+    },
+    "messages": {
+      "$groupId": {
+        ".read": "auth != null && (root.child('groups/' + $groupId + '/type').val() === 'public' || root.child('groups/' + $groupId + '/members/' + auth.uid).exists())",
+        ".write": "auth != null && (root.child('groups/' + $groupId + '/type').val() === 'public' || root.child('groups/' + $groupId + '/members/' + auth.uid).exists())"
+      }
+    },
+    "invites": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null"
+      }
+    }
+  }
+}

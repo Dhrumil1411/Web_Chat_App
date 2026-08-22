@@ -1,4 +1,4 @@
-import { auth, database, provider, signInWithPopup, signOut, onAuthStateChanged, ref, set, push, onChildAdded, get, child, off, update, query, orderByChild, equalTo, onValue, onDisconnect } from './firebase.js';
+import { auth, database, provider, signInWithPopup, signOut, onAuthStateChanged, signInAnonymously, updateProfile, ref, set, push, onChildAdded, get, child, off, update, query, orderByChild, equalTo, onValue, onDisconnect } from './firebase.js';
 
 // DOM Elements
 const app = document.getElementById('app');
@@ -41,8 +41,16 @@ const cancelAddMemberBtn = document.getElementById('cancel-add-member-btn');
 const confirmAddMemberBtn = document.getElementById('confirm-add-member-btn');
 const addMemberGroupName = document.getElementById('add-member-group-name');
 
-// Notifications
-const toastContainer = document.getElementById('toast-container');
+// Utility function for HTML escaping to prevent XSS
+function escapeHTML(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
 
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
@@ -54,7 +62,7 @@ function showToast(message, type = 'info') {
 
     toast.innerHTML = `
         <i class="fas fa-${icon} toast-icon"></i>
-        <span>${message}</span>
+        <span>${escapeHTML(message)}</span>
     `;
 
     toastContainer.appendChild(toast);
@@ -68,6 +76,9 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
+// Notifications
+const toastContainer = document.getElementById('toast-container');
+
 // State
 let currentUser = null;
 let currentGroupId = null;
@@ -75,14 +86,21 @@ let currentMessagesRef = null;
 let currentMessagesListener = null;
 let selectedUsers = new Set(); // For invites
 
-// Check Local Storage for Login
-const storedUser = localStorage.getItem('chat_app_user');
-if (storedUser) {
-    currentUser = JSON.parse(storedUser);
-    initializeAppState();
-} else {
-    showLoginScreen();
-}
+// Subscribe to Firebase Auth state
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUser = {
+            uid: user.uid,
+            displayName: user.displayName || 'User',
+            photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}`,
+            email: user.email || null
+        };
+        initializeAppState();
+    } else {
+        currentUser = null;
+        showLoginScreen();
+    }
+});
 
 function initializeAppState() {
     showChatInterface();
@@ -90,7 +108,7 @@ function initializeAppState() {
     loadGroups();
     listenForInvites();
     ensurePublicGroup(true);
-    setupPresence(); // NEW: Handle realtime online/offline status
+    setupPresence();
 }
 
 function setupPresence() {
@@ -102,14 +120,9 @@ function setupPresence() {
 
     onValue(connectedRef, (snap) => {
         if (snap.val() === true) {
-            // When connected, set online status to true
-            // And ensure it becomes false on disconnect
             onDisconnect(userStatusRef).set(false);
             onDisconnect(userLastOnlineRef).set(Date.now());
-
             set(userStatusRef, true);
-
-            // Also update main user record to ensure it's fresh
             updateUserInDatabase(currentUser);
         }
     });
@@ -120,7 +133,7 @@ function updateUserInDatabase(user) {
     update(userRef, {
         userName: user.displayName,
         photoURL: user.photoURL,
-        online: true, // Force online when updating
+        online: true,
         lastOnline: Date.now()
     });
 }
@@ -163,73 +176,93 @@ function loadUserInfo() {
     userName.textContent = currentUser.displayName;
 }
 
-// Login Handler (Custom Username)
-usernameLoginForm.addEventListener('submit', (e) => {
+// Login Handler (Custom Username via Anonymous Firebase Auth with secure fallback)
+usernameLoginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const inputName = loginUsernameInput.value.trim();
 
     if (!inputName) return;
+    if (inputName.length > 30) {
+        showToast("Username must be 30 characters or less.", "error");
+        return;
+    }
 
     // UI Feedback
     const submitBtn = usernameLoginForm.querySelector('.btn-login');
     const originalContent = submitBtn.innerHTML;
 
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
     submitBtn.style.opacity = '0.8';
 
-    const uid = inputName.toLowerCase().replace(/\s+/g, '_');
-    const userRef = ref(database, 'users/' + uid);
+    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(inputName)}&background=random`;
 
-    get(userRef).then((snapshot) => {
-        // Validation: Check if user exists AND is online
-        if (snapshot.exists()) {
-            const userData = snapshot.val();
-            if (userData.online === true) {
-                showToast("This username is currently being used by another active user. Please choose a different name.", "error");
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalContent;
-                submitBtn.style.opacity = '1';
-                return;
-            }
-        }
+    try {
+        const userCredential = await signInAnonymously(auth);
+        const user = userCredential.user;
 
-        // Login allowed
-        currentUser = {
-            uid: uid,
+        await updateProfile(user, {
             displayName: inputName,
-            photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(inputName)}&background=random`,
+            photoURL: avatarUrl
+        });
+
+        currentUser = {
+            uid: user.uid,
+            displayName: inputName,
+            photoURL: avatarUrl,
             email: null
         };
 
-        localStorage.setItem('chat_app_user', JSON.stringify(currentUser));
-
         loginUsernameInput.value = '';
-
-        // Reset button
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalContent;
         submitBtn.style.opacity = '1';
 
         initializeAppState();
+    } catch (error) {
+        console.warn("Login Notice:", error.code || error.message);
 
-    }).catch((error) => {
-        console.error("Login Error:", error);
-        showToast("Network error. Please try again.", "error");
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalContent;
-        submitBtn.style.opacity = '1';
-    });
+        // Fallback if Anonymous Auth is disabled in Firebase Console
+        if (error.code === 'auth/admin-restricted-operation' || error.code === 'auth/operation-not-allowed') {
+            try {
+                const uid = inputName.toLowerCase().replace(/\s+/g, '_');
+                currentUser = {
+                    uid: uid,
+                    displayName: inputName,
+                    photoURL: avatarUrl,
+                    email: null
+                };
+
+                loginUsernameInput.value = '';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalContent;
+                submitBtn.style.opacity = '1';
+
+                initializeAppState();
+            } catch (fallbackErr) {
+                console.error("Fallback Login Error:", fallbackErr);
+                showToast("Login failed.", "error");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalContent;
+                submitBtn.style.opacity = '1';
+            }
+        } else {
+            showToast("Authentication failed: " + (error.message || "Unknown error"), "error");
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalContent;
+            submitBtn.style.opacity = '1';
+        }
+    }
 });
 
-logoutBtn.addEventListener('click', () => {
-    // Set offline before clearing local storage
+logoutBtn.addEventListener('click', async () => {
+    // Set offline before signing out
     if (currentUser) {
         const userStatusRef = ref(database, 'users/' + currentUser.uid + '/online');
         set(userStatusRef, false);
     }
 
-    localStorage.removeItem('chat_app_user');
+    await signOut(auth);
     currentUser = null;
 
     // Reset state
@@ -285,14 +318,14 @@ function renderGroupItem(key, data) {
     div.className = 'group-item';
 
     const name = data.groupName || 'Unnamed Group';
-    const letter = name.charAt(0).toUpperCase();
+    const letter = escapeHTML(name.charAt(0).toUpperCase());
     const isPublic = data.type === 'public';
     const iconContent = isPublic ? '<i class="fas fa-globe"></i>' : letter;
 
     div.innerHTML = `
         <div class="group-icon">${iconContent}</div>
         <div class="group-details">
-            <span class="group-name">${name}</span>
+            <span class="group-name">${escapeHTML(name)}</span>
             <span class="group-subtitle">${isPublic ? 'Public Channel' : 'Private Group'}</span>
         </div>
     `;
@@ -352,11 +385,14 @@ function renderUserSelectRow(uid, userData) {
     const div = document.createElement('div');
     div.className = 'user-select-item';
 
-    const avatar = userData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.userName)}`;
+    const safeName = escapeHTML(userData.userName || 'User');
+    const avatar = (userData.photoURL && (userData.photoURL.startsWith('http://') || userData.photoURL.startsWith('https://'))) 
+        ? userData.photoURL 
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.userName || 'User')}`;
 
     div.innerHTML = `
-        <img src="${avatar}" class="user-select-avatar">
-        <span>${userData.userName}</span>
+        <img src="${escapeHTML(avatar)}" class="user-select-avatar">
+        <span>${safeName}</span>
         <span style="margin-left:auto; font-size:0.7rem; color:#4ade80;">Online</span>
         <i class="fas fa-check" style="margin-left: 10px; display: none;"></i>
     `;
@@ -482,8 +518,8 @@ function renderInviteItem(key, data) {
 
     div.innerHTML = `
         <div class="invite-info">
-            <span style="font-weight: 600;">${data.groupName}</span>
-            <span style="font-size: 0.8rem; color: var(--text-secondary);">Invited by ${data.inviterName}</span>
+            <span style="font-weight: 600;">${escapeHTML(data.groupName)}</span>
+            <span style="font-size: 0.8rem; color: var(--text-secondary);">Invited by ${escapeHTML(data.inviterName)}</span>
         </div>
         <div class="invite-actions">
             <button class="btn btn-sm btn-primary accept-btn">Accept</button>
@@ -591,11 +627,14 @@ function renderUserSelectRowForAdd(uid, userData) {
     const div = document.createElement('div');
     div.className = 'user-select-item';
 
-    const avatar = userData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.userName)}`;
+    const safeName = escapeHTML(userData.userName || 'User');
+    const avatar = (userData.photoURL && (userData.photoURL.startsWith('http://') || userData.photoURL.startsWith('https://')))
+        ? userData.photoURL
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.userName || 'User')}`;
 
     div.innerHTML = `
-        <img src="${avatar}" class="user-select-avatar">
-        <span>${userData.userName}</span>
+        <img src="${escapeHTML(avatar)}" class="user-select-avatar">
+        <span>${safeName}</span>
         <span style="margin-left:auto; font-size:0.7rem; color:#4ade80;">Online</span>
         <i class="fas fa-check" style="margin-left: 10px; display: none;"></i>
     `;
@@ -715,12 +754,14 @@ function renderMessage(msg) {
     const date = new Date(msg.timestamp || Date.now());
     const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    const textContent = msg.text || msg.message || '(No text)';
-    const userName = msg.userName || 'Unknown User';
-    const avatarUrl = msg.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}`;
+    const rawText = msg.text || msg.message || '(No text)';
+    const textContent = escapeHTML(rawText);
+    const userName = escapeHTML(msg.userName || 'Unknown User');
+    const rawAvatar = msg.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}`;
+    const avatarUrl = (rawAvatar.startsWith('http://') || rawAvatar.startsWith('https://')) ? rawAvatar : `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}`;
 
     div.innerHTML = `
-        <img src="${avatarUrl}" class="msg-avatar" alt="${userName}" onerror="this.src='https://via.placeholder.com/32'">
+        <img src="${escapeHTML(avatarUrl)}" class="msg-avatar" alt="${userName}" onerror="this.src='https://via.placeholder.com/32'">
         <div class="msg-content">
             <div class="msg-username">${userName}</div>
             <div class="msg-bubble">

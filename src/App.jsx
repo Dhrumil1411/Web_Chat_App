@@ -2,14 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 import Login from './components/Login';
 import Sidebar from './components/Sidebar';
 import ChatWindow from './components/ChatWindow';
-import { CreateGroupModal, AddMemberModal, InvitesModal } from './components/Modals';
-import { database, ref, onValue, set, get, onDisconnect, update, off, push, query, orderByChild, onChildAdded } from './firebase';
-import { AnimatePresence } from 'framer-motion';
+import { CreateGroupModal, AddMemberModal, InvitesModal, EditGroupModal, DeleteGroupModal } from './components/Modals';
+import { database, auth, signOut, onAuthStateChanged, ref, onValue, set, get, onDisconnect, update, off, push, query, orderByChild, onChildAdded } from './firebase';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Sun, Moon } from 'lucide-react';
 
 export default function App() {
-    const [currentUser, setCurrentUser] = useState(() => {
-        const saved = localStorage.getItem('chat_user');
-        return saved ? JSON.parse(saved) : null;
+    const [currentUser, setCurrentUser] = useState(null);
+    const [theme, setTheme] = useState(() => {
+        return localStorage.getItem('chat_theme') || 'dark';
     });
 
     const [activeGroupId, setActiveGroupId] = useState(null);
@@ -22,10 +23,41 @@ export default function App() {
     const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
     const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
     const [isInvitesOpen, setIsInvitesOpen] = useState(false);
+    const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
+    const [isDeleteGroupOpen, setIsDeleteGroupOpen] = useState(false);
 
     // Toast
     const [toasts, setToasts] = useState([]);
     const hasAutoSelected = useRef(false);
+
+    // Sync theme attribute on document root
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('chat_theme', theme);
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+    };
+
+    // Subscribe to Firebase Auth state
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setCurrentUser({
+                    uid: user.uid,
+                    displayName: user.displayName || 'User',
+                    photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}`,
+                    email: user.email || null
+                });
+            } else {
+                setCurrentUser(null);
+                setActiveGroupId(null);
+                setIsMobileChatActive(false);
+            }
+        });
+        return () => unsubscribe();
+    }, []);
 
     // Reset auto-select on user change
     useEffect(() => {
@@ -54,10 +86,9 @@ export default function App() {
         });
     }, []);
 
-    // Auth & Presence
+    // Presence Management
     useEffect(() => {
         if (currentUser) {
-            localStorage.setItem('chat_user', JSON.stringify(currentUser));
             // Setup presence
             const userStatusRef = ref(database, 'users/' + currentUser.uid + '/online');
             const userLastOnlineRef = ref(database, 'users/' + currentUser.uid + '/lastOnline');
@@ -80,8 +111,6 @@ export default function App() {
             return () => {
                 off(connectedRef);
             }
-        } else {
-            localStorage.removeItem('chat_user');
         }
     }, [currentUser]);
 
@@ -125,7 +154,6 @@ export default function App() {
         return () => off(invitesRef);
     }, [currentUser]);
 
-    // Load Messages
     // Load Messages using onChildAdded for better content stability
     useEffect(() => {
         if (!activeGroupId) {
@@ -155,21 +183,31 @@ export default function App() {
         setCurrentUser(user);
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         if (currentUser) {
-            set(ref(database, 'users/' + currentUser.uid + '/online'), false);
+            try {
+                await set(ref(database, 'users/' + currentUser.uid + '/online'), false);
+            } catch (e) {
+                console.error("Logout status update failed:", e);
+            }
         }
+        await signOut(auth);
         setCurrentUser(null);
         setActiveGroupId(null);
         setIsMobileChatActive(false);
     };
 
     const handleSendMessage = async (text) => {
-        if (!text.trim() || !activeGroupId || !currentUser) return;
+        const trimmed = (text || '').trim();
+        if (!trimmed || !activeGroupId || !currentUser) return;
+        if (trimmed.length > 1000) {
+            showToast("Message exceeds maximum length of 1000 characters", "error");
+            return;
+        }
 
         const messagesRef = ref(database, `messages/${activeGroupId}`);
         await push(messagesRef, {
-            text: text,
+            text: trimmed,
             uid: currentUser.uid,
             userName: currentUser.displayName,
             photoURL: currentUser.photoURL,
@@ -199,9 +237,32 @@ export default function App() {
         </div>
     );
 
+    const ThemeToggleButton = () => (
+        <button
+            className="theme-toggle-btn"
+            onClick={toggleTheme}
+            title={theme === 'dark' ? "Switch to Light Theme" : "Switch to Dark Theme"}
+            aria-label="Toggle theme"
+        >
+            <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                    key={theme}
+                    initial={{ rotate: -90, scale: 0.5, opacity: 0 }}
+                    animate={{ rotate: 0, scale: 1, opacity: 1 }}
+                    exit={{ rotate: 90, scale: 0.5, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: "easeInOut" }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                    {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                </motion.div>
+            </AnimatePresence>
+        </button>
+    );
+
     if (!currentUser) {
         return (
             <div id="root">
+                <ThemeToggleButton />
                 <Login onLogin={handleLogin} showToast={showToast} />
                 <ToastContainer />
             </div>
@@ -210,6 +271,7 @@ export default function App() {
 
     return (
         <div id="root" style={{ flexDirection: 'row' }}>
+            <ThemeToggleButton />
             <Sidebar
                 groups={groups}
                 activeGroupId={activeGroupId}
@@ -229,6 +291,8 @@ export default function App() {
                     onSendMessage={handleSendMessage}
                     onBack={() => setIsMobileChatActive(false)}
                     onAddMember={() => setIsAddMemberOpen(true)}
+                    onEditGroup={() => setIsEditGroupOpen(true)}
+                    onDeleteGroup={() => setIsDeleteGroupOpen(true)}
                 />
             </div>
 
@@ -260,6 +324,30 @@ export default function App() {
                         invites={invites}
                         currentUser={currentUser}
                         showToast={showToast}
+                    />
+                )}
+                {isEditGroupOpen && (
+                    <EditGroupModal
+                        key="edit-group"
+                        isOpen={isEditGroupOpen}
+                        onClose={() => setIsEditGroupOpen(false)}
+                        currentGroup={activeGroup}
+                        currentUser={currentUser}
+                        showToast={showToast}
+                    />
+                )}
+                {isDeleteGroupOpen && (
+                    <DeleteGroupModal
+                        key="delete-group"
+                        isOpen={isDeleteGroupOpen}
+                        onClose={() => setIsDeleteGroupOpen(false)}
+                        currentGroup={activeGroup}
+                        currentUser={currentUser}
+                        showToast={showToast}
+                        onGroupDeleted={() => {
+                            setActiveGroupId(null);
+                            setIsMobileChatActive(false);
+                        }}
                     />
                 )}
             </AnimatePresence>
