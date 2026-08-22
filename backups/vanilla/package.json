@@ -1,5 +1,13 @@
 {
+  "name": "chat-app-vanilla",
+  "private": true,
   "dependencies": {
-    "firebase": "^12.9.0"
+    "firebase": "^10.14.1"
+  },
+  "overrides": {
+    "protobufjs": "^7.4.0",
+    "@grpc/grpc-js": "^1.12.2",
+    "undici": "^6.21.0",
+    "websocket-driver": "^0.7.4"
   }
 }
